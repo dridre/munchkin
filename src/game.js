@@ -9,6 +9,8 @@ export const DEFAULT_COLORS = [
 export const MAX_LEVEL = 10
 export const MAX_GEAR = 99
 export const MAX_BAD = 99
+export const MAX_PLAYERS = DEFAULT_COLORS.length
+export const NAME_MAX = 14
 export const EMPTY = { players: [], started: false }
 
 export const clamp = (n, min, max) => Math.min(max, Math.max(min, n))
@@ -19,10 +21,54 @@ const LIMITS = {
   bad: [0, MAX_BAD],
 }
 
+// Los unicos campos que se pueden escribir a mano, y como se limpia cada uno.
+// Esto es la frontera de confianza de todo el sistema: el servidor ejecuta este
+// mismo `reduce` con lo que le manda cualquier aparato conectado a la sala, asi
+// que lo que no se valide aqui acaba guardado en la sala de todos.
+const WRITABLE = {
+  name: (v) => String(v ?? '').slice(0, NAME_MAX),
+  sex: (v) => (v === 'f' ? 'f' : 'm'),
+  color: (v) => (/^#[0-9a-f]{6}$/i.test(v) ? String(v) : DEFAULT_COLORS[0]),
+}
+
+const whole = (n, fallback, min, max) =>
+  Number.isFinite(n) ? clamp(Math.trunc(n), min, max) : fallback
+
+// Deja un jugador con todos sus campos y dentro de rango, venga de donde venga:
+// de la red, de una partida guardada de una version vieja, o de un cliente con
+// mala idea. Sin esto un solo campo raro se propaga a NaN y deja el tablero en
+// blanco en todos los aparatos a la vez.
+export function sanePlayer(raw, index = 0) {
+  const p = raw && typeof raw === 'object' ? raw : {}
+  return {
+    id: typeof p.id === 'string' && p.id ? p.id : `jugador-${index}`,
+    name: WRITABLE.name(p.name),
+    sex: WRITABLE.sex(p.sex),
+    color: WRITABLE.color(p.color),
+    level: whole(p.level, 1, 1, MAX_LEVEL),
+    gear: whole(p.gear, 0, 0, MAX_GEAR),
+    bad: whole(p.bad, 0, 0, MAX_BAD),
+  }
+}
+
+export function saneState(raw) {
+  const players = Array.isArray(raw?.players) ? raw.players : []
+  return {
+    started: Boolean(raw?.started),
+    players: players.slice(0, MAX_PLAYERS).map(sanePlayer),
+  }
+}
+
+// `crypto.randomUUID` no existe fuera de contexto seguro, y probar en el movil
+// contra el portatil es siempre por http://192.168.x.x: sin esto, anadir jugador
+// revienta justo cuando pruebas en el aparato que importa.
+const newId = () =>
+  globalThis.crypto?.randomUUID?.() ?? `p-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
+
 export function newPlayer(players) {
   const free = DEFAULT_COLORS.find((c) => !players.some((p) => p.color === c))
   return {
-    id: crypto.randomUUID(),
+    id: newId(),
     name: '',
     sex: 'm',
     color: free ?? DEFAULT_COLORS[players.length % DEFAULT_COLORS.length],
@@ -45,18 +91,29 @@ const mapPlayer = (state, id, change) => ({
 // movil y la mesa suman a la vez, tienen que sumar dos, no pisarse.
 export function reduce(state, action) {
   switch (action.type) {
-    case 'add':
-      return { ...state, players: [...state.players, action.player] }
+    case 'add': {
+      if (state.players.length >= MAX_PLAYERS) return state
+      return {
+        ...state,
+        players: [...state.players, sanePlayer(action.player, state.players.length)],
+      }
+    }
 
     case 'remove':
       return { ...state, players: state.players.filter((p) => p.id !== action.id) }
 
-    case 'set':
-      return mapPlayer(state, action.id, (p) => ({ ...p, [action.field]: action.value }))
+    case 'set': {
+      const clean = WRITABLE[action.field]
+      if (!clean) return state
+      return mapPlayer(state, action.id, (p) => ({ ...p, [action.field]: clean(action.value) }))
+    }
 
     case 'bump': {
       const [min, max] = LIMITS[action.field] ?? []
       if (min === undefined) return state
+      // El delta viaja por la red y ademas se agrupa al mantener pulsado, asi
+      // que puede ser cualquier entero, pero entero.
+      if (!Number.isInteger(action.delta)) return state
       return mapPlayer(state, action.id, (p) => ({
         ...p,
         [action.field]: clamp(p[action.field] + action.delta, min, max),
@@ -67,7 +124,10 @@ export function reduce(state, action) {
       return {
         ...state,
         started: true,
-        players: state.players.map((p, i) => ({ ...p, name: p.name.trim() || `Jugador ${i + 1}` })),
+        players: state.players.map((p, i) => ({
+          ...p,
+          name: String(p.name ?? '').trim() || `Jugador ${i + 1}`,
+        })),
       }
 
     case 'edit':

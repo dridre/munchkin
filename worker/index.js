@@ -1,4 +1,4 @@
-import { reduce } from '../src/game.js'
+import { reduce, saneState } from '../src/game.js'
 
 // Sin I, L, O, 0 ni 1: son las que se confunden al leerlas de una pantalla al
 // otro lado de la mesa.
@@ -8,6 +8,11 @@ const TRIES = 5
 
 // Una sala sin tocar un dia se borra sola. Son partidas, no cuentas.
 const ROOM_LIFE = 24 * 60 * 60 * 1000
+// No se reprograma la alarma en cada pulsacion: con el dedo apoyado son ~16
+// acciones por segundo y cada una costaba una escritura de mas.
+const ALARM_SLACK = 60 * 60 * 1000
+// Una accion son ~120 bytes. Todo lo que pase de aqui es alguien probando.
+const MAX_MESSAGE = 4000
 
 const CORS = {
   'access-control-allow-origin': '*',
@@ -34,8 +39,11 @@ export default {
 
     // La mesa crea la sala y le pasa la partida que ya tiene montada.
     if (request.method === 'POST' && url.pathname === '/room') {
-      const state = await request.json().catch(() => null)
-      if (!state?.players) return json({ error: 'partida no valida' }, 400)
+      const body = await request.json().catch(() => null)
+      if (!Array.isArray(body?.players)) return json({ error: 'partida no valida' }, 400)
+
+      // Se limpia aqui: lo que se guarde tiene que ser una partida jugable.
+      const state = saneState(body)
 
       for (let intento = 0; intento < TRIES; intento++) {
         const code = newCode()
@@ -66,7 +74,7 @@ export class Room {
     if (url.pathname === '/create') {
       // Si ya hay partida aqui, el codigo esta cogido: que el Worker pruebe otro.
       if (await this.ctx.storage.get('state')) return new Response('cogido', { status: 409 })
-      await this.save(await request.json())
+      await this.save(saneState(await request.json()))
       return new Response('ok')
     }
 
@@ -77,10 +85,12 @@ export class Room {
     const { 0: client, 1: server } = new WebSocketPair()
     // Con hibernacion: la sala se duerme entre toque y toque sin cortar a nadie.
     this.ctx.acceptWebSocket(server)
+    server.serializeAttachment({ role: null })
 
     const state = await this.ctx.storage.get('state')
     if (state) {
-      server.send(JSON.stringify({ type: 'sync', state }))
+      // A todos, no solo al que entra: la mesa quiere ver como van llegando.
+      this.broadcast({ type: 'sync', state, ...this.presence() })
     } else {
       server.send(JSON.stringify({ type: 'missing' }))
       server.close(1000, 'esa sala no existe')
@@ -89,36 +99,79 @@ export class Room {
     return new Response(null, { status: 101, webSocket: client })
   }
 
-  async webSocketMessage(ws, raw) {
-    let message
-    try {
-      message = JSON.parse(raw)
-    } catch {
-      return
+  // Quien hay conectado y que personaje ha cogido cada uno, para que nadie
+  // reclame el mismo jugador y para que la mesa vea si ya han entrado todos.
+  presence() {
+    const sockets = this.ctx.getWebSockets()
+    const taken = []
+    for (const ws of sockets) {
+      const role = ws.deserializeAttachment()?.role
+      if (role && role !== 'table' && !taken.includes(role)) taken.push(role)
     }
-    if (message?.type !== 'action') return
+    return { taken, devices: sockets.length }
+  }
 
-    const state = await this.ctx.storage.get('state')
-    if (!state) return
-
-    // El servidor manda la partida entera despues de cada cambio: asi nadie se
-    // queda desincronizado aunque se pierda un mensaje o lleguen desordenados.
-    const next = reduce(state, message.action)
-    await this.save(next)
-
-    const payload = JSON.stringify({ type: 'sync', state: next })
+  broadcast(payload) {
+    const text = JSON.stringify(payload)
     for (const open of this.ctx.getWebSockets()) {
       try {
-        open.send(payload)
+        open.send(text)
       } catch {
         /* ese ya se ha ido */
       }
     }
   }
 
+  async webSocketMessage(ws, raw) {
+    // Una excepcion aqui abortaria el objeto y tiraria a los cinco a la vez.
+    try {
+      if (typeof raw !== 'string' || raw.length > MAX_MESSAGE) return
+
+      const message = JSON.parse(raw)
+
+      if (message?.type === 'claim') {
+        const role = typeof message.role === 'string' ? message.role : null
+        ws.serializeAttachment({ role })
+        const state = await this.ctx.storage.get('state')
+        if (state) this.broadcast({ type: 'sync', state, ...this.presence() })
+        return
+      }
+
+      if (message?.type !== 'action') return
+
+      const state = await this.ctx.storage.get('state')
+      if (!state) return
+
+      // El servidor manda la partida entera despues de cada cambio: asi nadie se
+      // queda desincronizado aunque se pierda un mensaje o lleguen desordenados.
+      // `by` y `n` vuelven tal cual para que quien la mando sepa cual ya esta
+      // aplicada y pueda soltarla de su cola de pendientes.
+      const next = reduce(state, message.action)
+      await this.save(next)
+      this.broadcast({
+        type: 'sync',
+        state: next,
+        by: message.by,
+        n: message.n,
+        ...this.presence(),
+      })
+    } catch {
+      /* mensaje ilegible: se ignora, la sala sigue viva */
+    }
+  }
+
+  async webSocketClose() {
+    const state = await this.ctx.storage.get('state')
+    if (state) this.broadcast({ type: 'sync', state, ...this.presence() })
+  }
+
   async save(state) {
     await this.ctx.storage.put('state', state)
-    await this.ctx.storage.setAlarm(Date.now() + ROOM_LIFE)
+
+    const alarma = await this.ctx.storage.getAlarm()
+    if (!alarma || alarma < Date.now() + ROOM_LIFE - ALARM_SLACK) {
+      await this.ctx.storage.setAlarm(Date.now() + ROOM_LIFE)
+    }
   }
 
   async alarm() {

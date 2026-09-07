@@ -31,7 +31,11 @@ export async function createRoom(state) {
 
 const FIRST_WAIT = 500
 const MAX_WAIT = 10000
-export const nextWait = (wait) => Math.min(MAX_WAIT, Math.round(wait * 1.8))
+// Con jitter: si se cae el punto de acceso, los cinco moviles se desconectan a
+// la vez y sin esto reintentarian todos en el mismo milisegundo, justo cuando
+// peor esta la red.
+export const nextWait = (wait, dado = Math.random()) =>
+  Math.min(MAX_WAIT, Math.round(wait * 1.8 * (0.8 + dado * 0.4)))
 
 // Conexion a la sala. Se reconecta sola espaciando los intentos: en una mesa el
 // wifi se cae, alguien bloquea el movil y hay que volver sin que nadie toque nada.
@@ -83,7 +87,19 @@ export function useRoom(code, onMessage) {
 
     open()
 
+    // iOS congela los temporizadores con la pantalla bloqueada: al volver puede
+    // quedarse hasta diez segundos sin linea mientras su dueño toca botones.
+    const onVisible = () => {
+      if (document.visibilityState === 'visible' && !socket.current) {
+        clearTimeout(retry)
+        wait = FIRST_WAIT
+        open()
+      }
+    }
+    document.addEventListener('visibilitychange', onVisible)
+
     return () => {
+      document.removeEventListener('visibilitychange', onVisible)
       alive = false
       clearTimeout(retry)
       socket.current?.close()

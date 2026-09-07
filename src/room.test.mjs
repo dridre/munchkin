@@ -14,10 +14,14 @@ let wait = 500
 const waits = []
 for (let i = 0; i < 12; i++) {
   waits.push(wait)
-  wait = nextWait(wait)
+  wait = nextWait(wait, 0.5)
 }
 assert.ok(waits.every((w, i) => i === 0 || w > waits[i - 1] || w === 10000), 'va espaciando')
 assert.equal(Math.max(...waits), 10000, 'sin pasar de diez segundos')
-assert.equal(nextWait(10000), 10000, 'y ahi se queda')
+assert.equal(nextWait(10000, 0.5), 10000, 'y ahi se queda')
+
+// Con jitter: dos moviles que caen a la vez no vuelven en el mismo instante.
+assert.notEqual(nextWait(1000, 0), nextWait(1000, 1), 'el reintento se reparte')
+assert.ok(nextWait(1000, 0) >= 1000 && nextWait(1000, 1) <= 2600, 'pero sin irse de madre')
 
 console.log('sala ok')

@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react'
-import { EMPTY, reduce } from './game.js'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { EMPTY, reduce, saneState } from './game.js'
 import { useRoom, createRoom, cleanCode, hasRooms } from './room.js'
 
 export * from './game.js'
@@ -42,11 +42,35 @@ function initialCode() {
   return read(ROOM_KEY)
 }
 
+// Lo que tarda en salir hacia la sala lo que se ha ido pulsando. Con el dedo
+// apoyado se generan ~16 acciones por segundo: agruparlas en una sola con el
+// incremento sumado da exactamente el mismo resultado y una decima parte de
+// escrituras en el servidor.
+const FLUSH = 150
+
+// Junta los `bump` seguidos del mismo jugador y campo: doce +1 son un +12.
+function group(actions) {
+  const out = []
+  for (const action of actions) {
+    const last = out[out.length - 1]
+    if (
+      action.type === 'bump' &&
+      last?.type === 'bump' &&
+      last.id === action.id &&
+      last.field === action.field
+    ) {
+      out[out.length - 1] = { ...last, delta: last.delta + action.delta }
+    } else {
+      out.push(action)
+    }
+  }
+  return out
+}
+
 export function useGame() {
   const [state, setState] = useState(() => {
-    const raw = read(KEY)
     try {
-      return raw ? { ...EMPTY, ...JSON.parse(raw) } : EMPTY
+      return saneState(JSON.parse(read(KEY)) ?? EMPTY)
     } catch {
       return EMPTY
     }
@@ -54,44 +78,100 @@ export function useGame() {
 
   const [code, setCode] = useState(initialCode)
   const [error, setError] = useState(null)
+  const [presence, setPresence] = useState({ taken: [], devices: 0 })
+
+  // Quien soy en esta conexion, solo para reconocer mis propias acciones cuando
+  // el servidor me las devuelve.
+  const me = useRef(Math.random().toString(36).slice(2))
+  const counter = useRef(0)
+  const outbox = useRef([]) // pulsado, aun sin salir
+  const inflight = useRef([]) // enviado, aun sin confirmar
+  const timer = useRef(null)
 
   useEffect(() => {
     write(KEY, JSON.stringify(state))
   }, [state])
 
   const onMessage = useCallback((message) => {
-    // El servidor manda la partida entera despues de cada cambio: es la version
-    // buena y corrige cualquier desajuste sin tener que pensar en el orden.
-    if (message.type === 'sync') setState(message.state)
     if (message.type === 'missing') {
       setCode(null)
       write(ROOM_KEY, null)
       setError('Esa sala ya no existe.')
+      return
     }
+
+    if (message.type !== 'sync') return
+    if (message.taken) setPresence({ taken: message.taken, devices: message.devices ?? 0 })
+
+    // Suelta lo que el servidor ya ha aplicado de lo mio.
+    if (message.by === me.current) {
+      inflight.current = inflight.current.filter((p) => p.n > message.n)
+    }
+
+    // La partida del servidor es la buena, pero encima van mis acciones aun sin
+    // confirmar: si no, el numero retrocede en pantalla mientras lo pulsas.
+    setState(() => {
+      const base = saneState(message.state)
+      const mias = [...inflight.current.map((p) => p.action), ...outbox.current]
+      return mias.reduce(reduce, base)
+    })
   }, [])
 
   const { status, send } = useRoom(code, onMessage)
+
+  const flush = useCallback(() => {
+    timer.current = null
+    if (!outbox.current.length) return
+
+    for (const action of group(outbox.current)) {
+      const n = ++counter.current
+      inflight.current.push({ n, action })
+      send({ type: 'action', action, by: me.current, n })
+    }
+    outbox.current = []
+  }, [send])
+
+  // Al recuperar la linea sale todo lo que se quedo pendiente: sin esto, lo que
+  // pulsaste sin cobertura se perdia sin que nadie se enterara.
+  useEffect(() => {
+    if (status !== 'online') return
+    for (const { n, action } of inflight.current) {
+      send({ type: 'action', action, by: me.current, n })
+    }
+    flush()
+  }, [status, send, flush])
 
   // El unico sitio por el que se cambia la partida. Se aplica aqui al momento
   // para que el boton responda, y ademas sale hacia la sala.
   const dispatch = useCallback(
     (action) => {
       setState((s) => reduce(s, action))
-      send({ type: 'action', action })
+      outbox.current.push(action)
+      if (!timer.current) timer.current = setTimeout(flush, FLUSH)
     },
-    [send],
+    [flush],
   )
+
+  useEffect(() => () => clearTimeout(timer.current), [])
 
   const enter = useCallback((next) => {
     setError(null)
+    inflight.current = []
+    outbox.current = []
     setCode(next)
     write(ROOM_KEY, next)
   }, [])
+
+  const claim = useCallback((role) => send({ type: 'claim', role }), [send])
 
   const room = {
     code,
     status,
     error,
+    claim,
+    taken: presence.taken,
+    devices: presence.devices,
+    pending: inflight.current.length + outbox.current.length,
     available: hasRooms,
     dismiss: () => setError(null),
     create: async () => {

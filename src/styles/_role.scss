@@ -72,3 +72,54 @@
     gap: .6rem;
   }
 }
+
+// Un personaje que ya lleva otro movil: se puede coger igual, pero avisando.
+.role__card--cogido {
+  opacity: .45;
+}
+
+.role__cogido {
+  font-size: .75rem;
+  letter-spacing: .04em;
+  opacity: .8;
+}
+
+// Pantalla de rescate cuando algo revienta y la partida guardada no se lee.
+.roto {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  text-align: center;
+
+  &__title {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 600;
+    letter-spacing: .12em;
+  }
+
+  &__hint {
+    margin: 0;
+    max-width: 28ch;
+    color: t.$muted;
+    line-height: 1.5;
+  }
+
+  &__btn {
+    margin-top: .5rem;
+    padding: .8rem 1.8rem;
+    border: 0;
+    border-radius: 6px;
+    background: t.$ink;
+    color: t.$bg;
+    font-family: t.$ui;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    cursor: pointer;
+  }
+}

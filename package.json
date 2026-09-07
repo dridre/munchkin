@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
@@ -12,7 +12,7 @@
     "deploy:sala": "npx --yes wrangler deploy --config worker/wrangler.jsonc",
     "test:sala": "node worker/sala.test.mjs",
     "dev:sala": "npx --yes wrangler dev --config worker/wrangler.jsonc --port 8787",
-    "deploy": "npm run build && npx --yes wrangler pages deploy dist --project-name=munchkin"
+    "deploy": "npm run build && npx --yes wrangler pages deploy dist --project-name=munchkin && npm run deploy:sala"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

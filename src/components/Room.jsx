@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Button, Dialog, TextField } from '@mui/material'
-import QRCode from 'qrcode'
 import { CODE_LENGTH, linkFor } from '../room.js'
 
 const STATUS = {
@@ -31,11 +30,16 @@ function Qr({ code }) {
 
   useEffect(() => {
     let alive = true
-    QRCode.toString(linkFor(code), {
-      type: 'svg',
-      margin: 1,
-      color: { dark: '#0d1013', light: '#ffffff' },
-    })
+    // Se carga al abrir el panel, no en el arranque: la ruta critica es que
+    // cinco personas abran la web a la vez desde los datos del movil de alguien.
+    import('qrcode')
+      .then(({ default: QRCode }) =>
+        QRCode.toString(linkFor(code), {
+          type: 'svg',
+          margin: 1,
+          color: { dark: '#0d1013', light: '#ffffff' },
+        }),
+      )
       .then((out) => alive && setSvg(out))
       .catch(() => alive && setSvg(''))
     return () => {
@@ -70,7 +74,14 @@ export function RoomPanel({ open, room, onClose }) {
             <Qr code={room.code} />
             <p className="room__hint">O entra a mano con este código:</p>
             <p className="room__code">{room.code}</p>
-            <p className={`room__status room__status--${room.status}`}>{STATUS[room.status]}</p>
+            <p className={`room__status room__status--${room.status}`}>
+              {STATUS[room.status]}
+              {room.devices > 0 &&
+                ` · ${room.devices} ${room.devices === 1 ? 'aparato' : 'aparatos'}`}
+            </p>
+            <p className="room__hint">
+              Los nombres viajan a un servidor en Cloudflare y la sala se borra sola a las 24 h.
+            </p>
             <div className="room__actions">
               <Button className="btn-ghost" onClick={room.leave}>
                 Salir de la sala

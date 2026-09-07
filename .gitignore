@@ -25,3 +25,6 @@ dist-ssr
 
 # configuracion local
 .env
+
+# estado local de wrangler
+.wrangler/

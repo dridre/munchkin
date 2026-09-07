@@ -2,22 +2,23 @@ import { TABLE, inkFor } from '../state.js'
 import { useCssVars } from '../useCssVars.js'
 import { RoomChip } from './Room.jsx'
 
-function PlayerCard({ player, onPick }) {
+function PlayerCard({ player, cogido, onPick }) {
   const ref = useCssVars({ '--card': player.color, '--ink': inkFor(player.color) })
 
   return (
     <button
       type="button"
-      className="role__card role__card--player"
+      className={`role__card role__card--player${cogido ? ' role__card--cogido' : ''}`}
       ref={ref}
       onClick={() => onPick(player.id)}
     >
       <span className="role__name">{player.name}</span>
+      {cogido && <span className="role__cogido">ya lo lleva otro</span>}
     </button>
   )
 }
 
-export default function RolePicker({ players, onPick, room, onRoom }) {
+export default function RolePicker({ players, taken = [], onPick, room, onRoom }) {
   return (
     <div className="role">
       <div className="role__inner">
@@ -35,7 +36,7 @@ export default function RolePicker({ players, onPick, room, onRoom }) {
 
         <div className="role__list">
           {players.map((p) => (
-            <PlayerCard key={p.id} player={p} onPick={onPick} />
+            <PlayerCard key={p.id} player={p} cogido={taken.includes(p.id)} onPick={onPick} />
           ))}
         </div>
       </div>

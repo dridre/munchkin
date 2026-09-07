@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import {
   EMPTY,
+  MAX_PLAYERS,
+  saneState,
   INK_DARK,
   INK_LIGHT,
   MAX_LEVEL,
@@ -103,3 +105,63 @@ const start = () => {
 }
 
 console.log('acciones ok')
+
+// --- entrada hostil ----------------------------------------------------------
+// El servidor ejecuta este mismo `reduce` con lo que mande cualquier aparato de
+// la sala. Nada de lo que llegue puede dejar la partida en un estado imposible:
+// un solo NaN se propaga a `force` y deja el tablero en blanco para todos, y
+// como el servidor lo guarda, no se arregla ni reconectando.
+{
+  const [base, uno] = start()
+  const veneno = [
+    { type: 'set', id: uno, field: 'level', value: {} },
+    { type: 'set', id: uno, field: 'level', value: 999999 },
+    { type: 'set', id: uno, field: 'admin', value: true },
+    { type: 'set', id: uno, field: 'id', value: 'secuestrado' },
+    { type: 'set', id: uno, field: 'name', value: 7 },
+    { type: 'set', id: uno, field: 'color', value: 'javascript:alert(1)' },
+    { type: 'set', id: uno, field: 'sex', value: 'x' },
+    { type: 'bump', id: uno, field: 'level' },
+    { type: 'bump', id: uno, field: 'level', delta: 'x' },
+    { type: 'bump', id: uno, field: 'level', delta: 1.5 },
+    { type: 'bump', id: uno, field: 'gear', delta: Infinity },
+    { type: 'add', player: {} },
+    { type: 'add', player: null },
+    { type: 'add' },
+    { type: 'ruido' },
+    {},
+  ]
+
+  const despues = veneno.reduce((s, action) => {
+    const next = reduce(s, action)
+    assert.ok(Array.isArray(next.players), `sigue habiendo jugadores tras ${JSON.stringify(action)}`)
+    next.players.forEach((p) => {
+      assert.ok(Number.isFinite(force(p)), `fuerza finita tras ${JSON.stringify(action)}`)
+      assert.equal(typeof p.name, 'string', `el nombre sigue siendo texto`)
+    })
+    return next
+  }, base)
+
+  assert.equal(despues.players[0].id, uno, 'nadie puede cambiar el id de un jugador')
+  assert.equal(despues.players[0].level, 1, 'ni saltarse el tope por la puerta de atras')
+  assert.equal(despues.players[0].sex, 'm', 'el sexo solo puede ser m o f')
+  assert.match(despues.players[0].color, /^#[0-9a-f]{6}$/i, 'el color siempre es un color')
+  assert.doesNotThrow(() => reduce(despues, { type: 'start' }), 'empezar no revienta')
+}
+
+// Nadie mete mas jugadores de los que hay colores.
+{
+  let s = EMPTY
+  for (let i = 0; i < MAX_PLAYERS + 5; i++) s = reduce(s, { type: 'add', player: newPlayer(s.players) })
+  assert.equal(s.players.length, MAX_PLAYERS, `el tope de ${MAX_PLAYERS} tambien vale en el servidor`)
+}
+
+// Una partida guardada por una version vieja se cura, no envenena.
+{
+  const vieja = saneState({ started: true, players: [{ id: 'x', name: 'Ana', level: 3 }] })
+  assert.equal(force(vieja.players[0]), 3, 'un jugador sin equipo ni desventajas no da NaN')
+  assert.equal(saneState(null).players.length, 0, 'y un guardado ilegible no revienta')
+  assert.equal(saneState({ players: 'no' }).players.length, 0, 'ni uno con la forma cambiada')
+}
+
+console.log('entrada hostil ok')

@@ -2,11 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { Button, IconButton, TextField } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
-import { DEFAULT_COLORS, newPlayer } from '../state.js'
+import { MAX_PLAYERS, newPlayer } from '../state.js'
 import SexPick from './SexPick.jsx'
 import { RoomChip } from './Room.jsx'
-
-const MAX_PLAYERS = DEFAULT_COLORS.length
 
 // Lo que tarda en darse por escrito el nombre.
 const PAUSE = 600
@@ -29,6 +27,10 @@ function NameField({ value, label, onCommit }) {
 
   const commit = (next) => {
     clearTimeout(timer.current)
+    // Ya esta escrito: vuelve a hacer caso a lo que llegue de la sala. En un
+    // movil el blur no siempre dispara (cierras el teclado, cambias de app) y
+    // el campo se quedaba sordo para siempre.
+    writing.current = false
     if (next !== value) onCommit(next)
   }
 
