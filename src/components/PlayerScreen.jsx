@@ -22,8 +22,17 @@ export default function PlayerScreen({ me, players, dispatch, onLeave, room, onR
           room={room}
           onRoom={onRoom}
         />
-        <IconButton className="board-back" aria-label="Mi ficha" onClick={() => setMap(false)}>
+        {/* El mismo sitio que ocupaba el boton del mapa en la ficha: ahora
+            devuelve a ella. */}
+        <IconButton className="board-corner" aria-label="Mi ficha" onClick={() => setMap(false)}>
           <PersonIcon />
+        </IconButton>
+        <IconButton
+          className="board-corner board-corner--bottom"
+          aria-label="Cambiar de jugador"
+          onClick={onLeave}
+        >
+          <GroupsIcon />
         </IconButton>
       </>
     )
@@ -33,10 +42,7 @@ export default function PlayerScreen({ me, players, dispatch, onLeave, room, onR
     <Sheet
       player={me}
       dispatch={dispatch}
-      actions={[
-        { icon: <MapIcon />, label: 'Ver el mapa', onClick: () => setMap(true) },
-        { icon: <GroupsIcon />, label: 'Cambiar de jugador', onClick: onLeave },
-      ]}
+      actions={[{ icon: <MapIcon />, label: 'Ver el mapa', onClick: () => setMap(true) }]}
     />
   )
 }

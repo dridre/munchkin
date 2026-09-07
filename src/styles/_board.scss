@@ -109,7 +109,7 @@
 }
 
 .board-menu.MuiIconButton-root,
-.board-back.MuiIconButton-root {
+.board-corner.MuiIconButton-root {
   position: fixed;
   right: calc(env(safe-area-inset-right) + .5rem);
   top: calc(env(safe-area-inset-top) + .5rem);
@@ -123,10 +123,12 @@
   &:hover { background: rgba(13, 16, 19, .8); }
 }
 
-// El de volver a tu ficha va abajo, donde cae el pulgar.
-.board-back.MuiIconButton-root {
+.board-corner.MuiIconButton-root {
+  width: 2.8rem;
+  height: 2.8rem;
+}
+
+.board-corner--bottom.MuiIconButton-root {
   top: auto;
   bottom: calc(env(safe-area-inset-bottom) + .6rem);
-  width: 3rem;
-  height: 3rem;
 }
