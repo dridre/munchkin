@@ -18,7 +18,7 @@ function PlayerCard({ player, cogido, onPick }) {
   )
 }
 
-export default function RolePicker({ players, taken = [], onPick, room, onRoom }) {
+export default function RolePicker({ players, taken = [], onPick, onNewGame, room, onRoom }) {
   return (
     <div className="role">
       <div className="role__inner">
@@ -39,6 +39,20 @@ export default function RolePicker({ players, taken = [], onPick, room, onRoom }
             <PlayerCard key={p.id} player={p} cogido={taken.includes(p.id)} onPick={onPick} />
           ))}
         </div>
+
+        {/* Solo fuera de una sala: un movil no puede rehacer por su cuenta la
+            partida que lleva la mesa. */}
+        {!room?.code && (
+          <>
+            <p className="role__aparte">o si hoy toca otra cosa</p>
+            <button type="button" className="role__card" onClick={onNewGame}>
+              <span className="role__name">Montar otra partida</span>
+              <span className="role__hint">
+                Los mismos jugadores, todos a nivel 1. Antes de empezar puedes cambiarlos.
+              </span>
+            </button>
+          </>
+        )}
       </div>
     </div>
   )

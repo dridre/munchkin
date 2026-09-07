@@ -195,15 +195,30 @@ export function useGame() {
 
 // Quien es este aparato: la mesa, o el jugador que ha reclamado. Es del aparato,
 // no de la partida, asi que se guarda aparte y no viaja a la sala.
-export function useRole() {
-  const [role, setRole] = useState(() => read(ROLE_KEY))
+//
+// Va atado a la sala en la que se cogio: si esa sala cambia o desaparece, dejas
+// de ser ese personaje. Sin esto, quien vuelve semanas despues aterrizaba en la
+// ficha de una partida que ya no existe y sin salida a la vista.
+export function useRole(code = null) {
+  const [stored, setStored] = useState(() => {
+    try {
+      return JSON.parse(read(ROLE_KEY))
+    } catch {
+      return null
+    }
+  })
 
-  const choose = useCallback((next) => {
-    setRole(next)
-    write(ROLE_KEY, next)
-  }, [])
+  const choose = useCallback(
+    (next) => {
+      const guardado = next ? { code: code ?? null, role: next } : null
+      setStored(guardado)
+      write(ROLE_KEY, guardado && JSON.stringify(guardado))
+    },
+    [code],
+  )
 
-  return [role, choose]
+  const mismaSala = (stored?.code ?? null) === (code ?? null)
+  return [mismaSala ? (stored?.role ?? null) : null, choose]
 }
 
 // Mantiene la tablet despierta durante la partida.

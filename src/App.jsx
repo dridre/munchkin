@@ -10,7 +10,7 @@ import { TABLE, useGame, useRole, useWakeLock } from './state.js'
 
 export default function App() {
   const [state, dispatch, room] = useGame()
-  const [role, setRole] = useRole()
+  const [role, setRole] = useRole(room.code)
   const [openId, setOpenId] = useState(null)
   const [roomOpen, setRoomOpen] = useState(false)
   useWakeLock()
@@ -38,6 +38,11 @@ export default function App() {
         players={state.players}
         taken={room.taken}
         onPick={setRole}
+        onNewGame={() => {
+          dispatch({ type: 'reset' })
+          dispatch({ type: 'edit' })
+          setRole(TABLE)
+        }}
         room={room}
         onRoom={showRoom}
       />
@@ -77,6 +82,15 @@ export default function App() {
   return (
     <>
       {screen}
+
+      {/* El aviso de que la sala ya no existe vivia solo dentro del panel, que
+          esta cerrado: nadie se enteraba de nada. */}
+      {room.error && (
+        <button type="button" className="aviso" onClick={room.dismiss}>
+          {room.error}
+        </button>
+      )}
+
       <RoomPanel open={roomOpen} room={room} onClose={() => setRoomOpen(false)} />
     </>
   )
