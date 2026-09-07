@@ -1,0 +1,39 @@
+@use "./tokens" as t;
+
+.sex-pick {
+  display: grid;
+  grid-auto-flow: column;
+  gap: .4rem;
+}
+
+.sex-btn {
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, .22);
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  opacity: .55;
+
+  // Los simbolos ♂ y ♀ los dibuja la fuente con trazo fino y no tienen negrita
+  // propia: se engordan con un borde de texto, en em para que escale solo.
+  font-weight: 700;
+  -webkit-text-stroke: .06em currentColor;
+  transition: opacity .15s ease, background-color .15s ease;
+
+  &--male { color: t.$male; }
+  &--female { color: t.$female; }
+
+  &--on { opacity: 1; }
+
+  // El elegido va relleno de su color, se ve de un vistazo.
+  &--male.sex-btn--on {
+    background: t.$male;
+    color: #06101f;
+  }
+
+  &--female.sex-btn--on {
+    background: t.$female;
+    color: #1d0612;
+  }
+}

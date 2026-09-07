@@ -1,0 +1,40 @@
+@use "./tokens" as t;
+@use "./sex";
+@use "./setup";
+@use "./board";
+@use "./role";
+@use "./room";
+@use "./sheet";
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  background: t.$bg;
+  color: t.$ink;
+  font-family: t.$ui;
+  font-size: 16px;
+  line-height: 1.45;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+button { font: inherit; }
+
+:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
+  }
+}

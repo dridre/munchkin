@@ -1,0 +1,36 @@
+{
+  "name": "munchkin",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "test": "node src/territory.test.mjs && node src/game.test.mjs && node src/hold.test.mjs && node src/room.test.mjs",
+    "deploy:sala": "npx --yes wrangler deploy --config worker/wrangler.jsonc",
+    "test:sala": "node worker/sala.test.mjs",
+    "dev:sala": "npx --yes wrangler dev --config worker/wrangler.jsonc --port 8787",
+    "deploy": "npm run build && npx --yes wrangler pages deploy dist --project-name=munchkin"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@fontsource/chakra-petch": "^5.3.0",
+    "@mui/icons-material": "^9.4.0",
+    "@mui/material": "^9.4.0",
+    "qrcode": "^1.5.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "sass-embedded": "^1.104.0",
+    "vite-plugin-pwa": "^1.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.1.0",
+    "oxlint": "^1.79.0",
+    "vite": "^8.2.2"
+  }
+}

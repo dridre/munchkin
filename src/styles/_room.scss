@@ -1,0 +1,129 @@
+@use "./tokens" as t;
+
+.room {
+  display: grid;
+  justify-items: center;
+  gap: .8rem;
+  padding: 1.5rem 1.5rem 1.25rem;
+  text-align: center;
+
+  &__title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+  }
+
+  &__hint {
+    margin: 0;
+    color: t.$muted;
+    font-size: .9rem;
+    line-height: 1.5;
+
+    &--split { margin-top: .6rem; }
+
+    code {
+      font-family: ui-monospace, monospace;
+      color: t.$ink;
+    }
+  }
+
+  &__qr {
+    width: min(15rem, 60vw);
+    background: #fff;
+    border-radius: 10px;
+    padding: .5rem;
+    line-height: 0;
+
+    svg { width: 100%; height: auto; }
+  }
+
+  &__code {
+    margin: 0;
+    font-size: clamp(2.5rem, 14vw, 3.5rem);
+    font-weight: 600;
+    letter-spacing: .28em;
+    text-indent: .28em;
+    line-height: 1;
+  }
+
+  &__status {
+    margin: 0;
+    font-size: .85rem;
+    color: t.$muted;
+
+    &--online { color: #4bbf73; }
+    &--offline { color: #e5a33d; }
+  }
+
+  &__error {
+    margin: 0;
+    color: #e5484d;
+    font-size: .9rem;
+  }
+
+  &__create.MuiButton-root { width: 100%; }
+
+  &__join {
+    display: flex;
+    gap: .5rem;
+    width: 100%;
+
+    .field { flex: 1; }
+
+    .MuiInputBase-input {
+      text-transform: uppercase;
+      letter-spacing: .3em;
+      font-size: 1.2rem;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: .5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: .3rem;
+  }
+}
+
+.room-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .35rem .7rem;
+  border: 1px solid t.$line;
+  border-radius: 999px;
+  background: rgba(13, 16, 19, .55);
+  color: t.$ink;
+  font-size: .8rem;
+  font-weight: 500;
+  letter-spacing: .12em;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+
+  &__dot {
+    width: .5rem;
+    height: .5rem;
+    border-radius: 50%;
+    background: t.$muted;
+  }
+
+  &--online .room-chip__dot { background: #4bbf73; }
+  &--connecting .room-chip__dot { background: #e5a33d; }
+  &--offline .room-chip__dot { background: #e5484d; }
+}
+
+// En la mesa va suelto en una esquina; en el movil, en la fila de los demas.
+.room-chip--corner {
+  position: fixed;
+  left: calc(env(safe-area-inset-left) + .5rem);
+  top: calc(env(safe-area-inset-top) + .5rem);
+  z-index: 2;
+}
+
+.others .room-chip {
+  flex: none;
+  align-self: stretch;
+  background: t.$surface;
+}

@@ -1,0 +1,153 @@
+@use "./tokens" as t;
+
+.sheet {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  padding: calc(env(safe-area-inset-top) + .5rem) .5rem calc(env(safe-area-inset-bottom) + .5rem);
+  background: var(--player-card);
+  color: var(--player-ink);
+
+  &__paper.MuiPaper-root { background: transparent; }
+
+  &__bar {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: .2rem .2rem .2rem 1rem;
+  }
+
+  &__name {
+    flex: 1;
+    margin: 0;
+    font-size: clamp(1.5rem, 4.6vmin, 3rem);
+    font-weight: 600;
+    letter-spacing: .08em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__force {
+    flex: none;
+    display: flex;
+    align-items: baseline;
+    gap: .45rem;
+    margin: 0;
+    font-size: clamp(.75rem, 2vmin, 1.1rem);
+    letter-spacing: .1em;
+    opacity: .8;
+
+    b {
+      font-size: clamp(1.9rem, 5.4vmin, 3.4rem);
+      font-weight: 600;
+      letter-spacing: 0;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  &__close.MuiIconButton-root {
+    flex: none;
+    color: var(--player-ink);
+    background: rgba(0, 0, 0, .16);
+    width: clamp(2.8rem, 7vmin, 4rem);
+    height: clamp(2.8rem, 7vmin, 4rem);
+
+    &:hover { background: rgba(0, 0, 0, .28); }
+  }
+
+  &__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: .55rem;
+    min-height: 0;
+  }
+}
+
+.stat {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, .75fr) minmax(0, 2fr);
+  align-items: center;
+  gap: 1rem;
+  background: rgba(0, 0, 0, .16);
+  border-radius: 12px;
+  padding: .5rem .5rem .5rem clamp(1rem, 3vw, 2.5rem);
+
+  &__label {
+    font-size: clamp(.95rem, 3vmin, 2rem);
+    font-weight: 500;
+    letter-spacing: .14em;
+    opacity: .85;
+  }
+
+  &__control {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: stretch;
+    gap: .5rem;
+    height: 100%;
+  }
+
+  &__value {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(2.4rem, 9vmin, 6rem);
+    font-weight: 600;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+
+  }
+
+  &__btn.MuiButton-root {
+    min-width: 0;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, .14);
+    border: 1px solid rgba(255, 255, 255, .16);
+    color: var(--player-ink);
+    font-family: t.$ui;
+    font-size: clamp(2rem, 6.5vmin, 4rem);
+    font-weight: 500;
+    line-height: 1;
+    padding: 0;
+
+    &:hover { background: rgba(255, 255, 255, .2); }
+    &:active { background: rgba(255, 255, 255, .28); }
+    &.Mui-disabled { opacity: .3; color: var(--player-ink); }
+  }
+}
+
+// El sexo se elige con los mismos botones que en la pantalla de creacion.
+.stat--sex .stat__control {
+  grid-template-columns: 1fr 1fr;
+}
+
+.stat--sex .sex-pick {
+  display: contents;
+}
+
+.stat--sex .sex-btn {
+  border-radius: 10px;
+  font-family: t.$ui;
+  font-size: clamp(2rem, 7vmin, 4.5rem);
+}
+
+// En un movil "Desventajas" se comia el boton de restar.
+@media (max-width: 30rem) {
+  .stat {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
+    padding-left: 1rem;
+    gap: .6rem;
+  }
+
+  .stat__label {
+    font-size: .8rem;
+    letter-spacing: .06em;
+    line-height: 1.2;
+  }
+}

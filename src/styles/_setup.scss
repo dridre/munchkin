@@ -1,0 +1,206 @@
+@use "./tokens" as t;
+
+.setup {
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(1.5rem, 5vw, 3.5rem) clamp(1.25rem, 8vw, 6rem);
+
+  // Centrado en vertical, pero sin cortar por arriba si no cabe.
+  &__inner {
+    width: 100%;
+    max-width: 34rem;
+    margin: auto;
+  }
+
+  &__head {
+    flex: none;
+    margin-bottom: clamp(1.25rem, 3.5vw, 2rem);
+    padding-bottom: 1.1rem;
+    border-bottom: 1px solid t.$line;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: clamp(1.8rem, 6vw, 2.6rem);
+    font-weight: 600;
+    letter-spacing: .28em;
+    line-height: 1;
+  }
+
+  &__list {
+    display: grid;
+    gap: .6rem;
+    align-content: start;
+  }
+
+  &__empty {
+    color: t.$muted;
+    border: 1px dashed t.$line;
+    border-radius: 4px;
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    margin: 0;
+  }
+
+  &__actions {
+    display: flex;
+    gap: .75rem;
+    justify-content: flex-end;
+    align-items: center;
+    padding-top: 1.5rem;
+
+    .room-chip { margin-right: auto; }
+  }
+}
+
+.slot {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  background: t.$surface;
+  border: 1px solid t.$line;
+  border-radius: 8px;
+  padding: .65rem .75rem;
+
+  &__name { flex: 1; min-width: 6rem; }
+
+  &__color {
+    flex: none;
+    width: 2.6rem;
+    height: 2.6rem;
+    padding: 0;
+    border: 1px solid t.$line;
+    border-radius: 50%;
+    background: none;
+    cursor: pointer;
+    appearance: none;
+
+    &::-webkit-color-swatch-wrapper { padding: 2px; }
+    &::-webkit-color-swatch { border: 0; border-radius: 50%; }
+    &::-moz-color-swatch { border: 0; border-radius: 50%; }
+  }
+}
+
+.field {
+  .MuiInputBase-root {
+    color: t.$ink;
+    font-family: t.$ui;
+    font-size: 1.05rem;
+  }
+
+  .MuiInputBase-input { padding-block: .75rem; }
+  .MuiInputLabel-root { color: t.$muted; font-family: t.$ui; }
+  .MuiInputLabel-root.Mui-focused { color: t.$ink; }
+  .MuiOutlinedInput-notchedOutline { border-color: t.$line; border-radius: 4px; }
+  .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline { border-color: t.$muted; }
+  .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline { border-color: t.$ink; }
+}
+
+.slot .sex-btn {
+  width: 2.9rem;
+  height: 2.7rem;
+  font-size: 1.45rem;
+}
+
+.btn-main.MuiButton-root {
+  background: t.$ink;
+  color: t.$bg;
+  font-family: t.$ui;
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: .12em;
+  text-transform: none;
+  padding: .6rem 2rem;
+  border-radius: 4px;
+
+  &:hover { background: #fff; }
+  &.Mui-disabled { background: t.$raised; color: t.$muted; }
+}
+
+.btn-ghost.MuiButton-root {
+  color: t.$ink;
+  font-family: t.$ui;
+  border: 1px solid t.$line;
+  border-radius: 4px;
+  padding: .55rem 1.2rem;
+  text-transform: none;
+  font-size: 1rem;
+
+  &:hover { border-color: t.$muted; background: rgba(232, 238, 242, .04); }
+  &.Mui-disabled { color: t.$muted; border-color: t.$line; }
+}
+
+.icon-btn.MuiIconButton-root {
+  color: t.$muted;
+
+  &:hover { color: t.$ink; }
+}
+
+.menu .MuiPaper-root {
+  background: t.$raised;
+  color: t.$ink;
+  border: 1px solid t.$line;
+  border-radius: 6px;
+
+  .MuiMenuItem-root { font-family: t.$ui; }
+}
+
+.ask .MuiPaper-root {
+  background: t.$surface;
+  color: t.$ink;
+  border: 1px solid t.$line;
+  border-radius: 8px;
+  max-width: 26rem;
+
+  .MuiDialogTitle-root {
+    font-family: t.$ui;
+    font-weight: 600;
+    font-size: 1.35rem;
+    letter-spacing: .06em;
+    padding: 1.5rem 1.5rem .25rem;
+  }
+
+  .MuiDialogActions-root { padding: 1rem 1.5rem 1.25rem; gap: .5rem; }
+}
+
+// En un movil la fila no cabe entera: el sexo se baja a su propia linea y los
+// botones dejan de partirse en dos.
+@media (max-width: 30rem) {
+  .setup {
+    padding-inline: 1rem;
+  }
+
+  .slot {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    row-gap: .55rem;
+
+    &__color { grid-area: 1 / 1; }
+    &__name { grid-area: 1 / 2; }
+
+    .icon-btn { grid-area: 1 / 3; }
+
+    .sex-pick {
+      grid-area: 2 / 1 / 3 / -1;
+      grid-auto-columns: 1fr;
+    }
+
+    .sex-btn { width: auto; }
+  }
+
+  .setup__actions {
+    flex-wrap: wrap;
+
+    .room-chip {
+      flex: 1 0 100%;
+      justify-content: center;
+    }
+  }
+
+  .btn-ghost.MuiButton-root,
+  .btn-main.MuiButton-root {
+    white-space: nowrap;
+  }
+}

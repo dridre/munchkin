@@ -1,0 +1,74 @@
+@use "./tokens" as t;
+
+.role {
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  padding: clamp(1.5rem, 5vw, 3.5rem) clamp(1.25rem, 8vw, 6rem);
+
+  &__inner {
+    width: 100%;
+    max-width: 34rem;
+    margin: auto;
+    display: grid;
+    gap: .6rem;
+  }
+
+  &__title {
+    margin: 0 0 .8rem;
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
+    font-weight: 600;
+    letter-spacing: .16em;
+  }
+
+  &__aparte {
+    margin: .9rem 0 .1rem;
+    color: t.$muted;
+    font-size: .9rem;
+    letter-spacing: .06em;
+  }
+
+  &__card {
+    display: grid;
+    gap: .35rem;
+    text-align: left;
+    padding: 1rem 1.2rem;
+    border: 1px solid t.$line;
+    border-radius: 10px;
+    background: t.$surface;
+    color: t.$ink;
+    cursor: pointer;
+
+    &:hover { border-color: t.$muted; }
+
+    &--player {
+      background: var(--card);
+      color: var(--ink);
+      border-color: transparent;
+      justify-items: center;
+      padding: 1.4rem .8rem;
+    }
+  }
+
+  &__name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    line-height: 1;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__hint {
+    font-size: .9rem;
+    color: t.$muted;
+  }
+
+  &__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+    gap: .6rem;
+  }
+}
