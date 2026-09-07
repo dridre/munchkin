@@ -29,7 +29,7 @@ function useAspect() {
   return aspect
 }
 
-function Region({ player, rect, mine, onSelect }) {
+function Region({ player, rect, onSelect }) {
   const ref = useCssVars({
     '--x': rect.x,
     '--y': rect.y,
@@ -43,7 +43,7 @@ function Region({ player, rect, mine, onSelect }) {
     <button
       ref={ref}
       type="button"
-      className={`region${mine ? ' region--mine' : ''}`}
+      className="region"
       onClick={onSelect}
     >
       <span className="region__name">
@@ -68,9 +68,9 @@ function Region({ player, rect, mine, onSelect }) {
   )
 }
 
-// Con `mine` el tablero es de mirar: solo se abre tu propio bloque y no salen
-// las opciones de partida, que son cosa de la mesa.
-export default function Board({ players, onSelect, mine, onEdit, onReset, onRole, room, onRoom }) {
+// Sin las opciones de partida (`onEdit` y compañia) el tablero es de mirar:
+// eso es cosa de la mesa, no del movil de un jugador.
+export default function Board({ players, onSelect, onEdit, onReset, onRole, room, onRoom }) {
   const [anchorEl, setAnchorEl] = useState(null)
   const [confirm, setConfirm] = useState(false)
   const aspect = useAspect()
@@ -84,7 +84,6 @@ export default function Board({ players, onSelect, mine, onEdit, onReset, onRole
             key={p.id}
             player={p}
             rect={rects[i]}
-            mine={p.id === mine}
             onSelect={() => onSelect(p.id)}
           />
         ))}

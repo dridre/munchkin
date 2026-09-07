@@ -8,20 +8,28 @@ import { RoomChip } from './Room.jsx'
 
 const MAX_PLAYERS = DEFAULT_COLORS.length
 
-// El nombre se lleva aparte mientras se escribe y se manda al soltar el campo.
-// Si cada tecla fuera a la sala, la partida que devuelve el servidor llegaria
-// con el nombre a medias y se comeria letras al escribir rapido.
+// Lo que tarda en darse por escrito el nombre.
+const PAUSE = 600
+
+// El nombre se lleva aparte mientras se escribe y se manda al rato de parar. Si
+// cada tecla fuera a la sala, la partida que devuelve el servidor llegaria con
+// el nombre a medias y se comerian letras al escribir rapido.
 function NameField({ value, label, onCommit }) {
   const [text, setText] = useState(value)
   const writing = useRef(false)
+  const timer = useRef(null)
 
+  // Mientras se escribe manda lo tecleado; si el cambio viene de fuera (otro
+  // aparato de la sala) se recoge solo cuando aqui no se esta escribiendo.
   useEffect(() => {
     if (!writing.current) setText(value)
   }, [value])
 
-  const commit = () => {
-    writing.current = false
-    if (text !== value) onCommit(text)
+  useEffect(() => () => clearTimeout(timer.current), [])
+
+  const commit = (next) => {
+    clearTimeout(timer.current)
+    if (next !== value) onCommit(next)
   }
 
   return (
@@ -31,11 +39,17 @@ function NameField({ value, label, onCommit }) {
       value={text}
       size="small"
       inputProps={{ maxLength: 14 }}
-      onFocus={() => {
+      onChange={(e) => {
+        const next = e.target.value
         writing.current = true
+        setText(next)
+        clearTimeout(timer.current)
+        timer.current = setTimeout(() => commit(next), PAUSE)
       }}
-      onChange={(e) => setText(e.target.value)}
-      onBlur={commit}
+      onBlur={() => {
+        writing.current = false
+        commit(text)
+      }}
       onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
     />
   )

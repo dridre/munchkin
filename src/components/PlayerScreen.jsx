@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { IconButton } from '@mui/material'
-import GroupsIcon from '@mui/icons-material/Groups'
-import MapIcon from '@mui/icons-material/Map'
+import DashboardIcon from '@mui/icons-material/Dashboard'
 import PersonIcon from '@mui/icons-material/Person'
+import SwitchAccountIcon from '@mui/icons-material/SwitchAccount'
 import Board from './Board.jsx'
 import { Sheet } from './PlayerSheet.jsx'
 
@@ -17,7 +17,6 @@ export default function PlayerScreen({ me, players, dispatch, onLeave, room, onR
       <>
         <Board
           players={players}
-          mine={me.id}
           onSelect={(id) => id === me.id && setMap(false)}
           room={room}
           onRoom={onRoom}
@@ -32,7 +31,7 @@ export default function PlayerScreen({ me, players, dispatch, onLeave, room, onR
           aria-label="Cambiar de jugador"
           onClick={onLeave}
         >
-          <GroupsIcon />
+          <SwitchAccountIcon />
         </IconButton>
       </>
     )
@@ -42,7 +41,7 @@ export default function PlayerScreen({ me, players, dispatch, onLeave, room, onR
     <Sheet
       player={me}
       dispatch={dispatch}
-      actions={[{ icon: <MapIcon />, label: 'Ver el mapa', onClick: () => setMap(true) }]}
+      actions={[{ icon: <DashboardIcon />, label: 'Ver el mapa', onClick: () => setMap(true) }]}
     />
   )
 }
