@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://munchkin-btb.pages.dev/sitemap.xml

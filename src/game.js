@@ -6,20 +6,33 @@ export const DEFAULT_COLORS = [
   '#e5484d', '#f76b15', '#ffb224', '#46a758',
   '#12a594', '#3e63dd', '#8e4ec6', '#e93d82',
 ]
-export const MAX_LEVEL = 10
+// A cuanto se juega. El estandar son 10, pero hay grupos que juegan a 20 (y
+// variantes que suben mas), asi que es de cada partida, no del programa.
+export const GOAL_DEFAULT = 10
+export const GOAL_MIN = 5
+export const GOAL_MAX = 30
 export const MAX_GEAR = 99
 export const MAX_BAD = 99
 export const MAX_PLAYERS = DEFAULT_COLORS.length
 export const NAME_MAX = 14
-export const EMPTY = { players: [], started: false }
+export const EMPTY = { players: [], started: false, goal: GOAL_DEFAULT }
 
 export const clamp = (n, min, max) => Math.min(max, Math.max(min, n))
 
 const LIMITS = {
-  level: [1, MAX_LEVEL],
   gear: [0, MAX_GEAR],
   bad: [0, MAX_BAD],
 }
+
+// El tope del nivel sale de la partida en curso; el resto son fijos.
+const limitsFor = (state, field) =>
+  field === 'level' ? [1, goalOf(state)] : LIMITS[field]
+
+const goalOf = (state) => whole(state?.goal, GOAL_DEFAULT, GOAL_MIN, GOAL_MAX)
+
+// Nadie ha empezado a puntuar: partida nueva o recien reiniciada.
+export const fresh = (state) =>
+  (state?.players ?? []).every((p) => p.level === 1 && p.gear === 0 && p.bad === 0)
 
 // Los unicos campos que se pueden escribir a mano, y como se limpia cada uno.
 // Esto es la frontera de confianza de todo el sistema: el servidor ejecuta este
@@ -38,14 +51,14 @@ const whole = (n, fallback, min, max) =>
 // de la red, de una partida guardada de una version vieja, o de un cliente con
 // mala idea. Sin esto un solo campo raro se propaga a NaN y deja el tablero en
 // blanco en todos los aparatos a la vez.
-export function sanePlayer(raw, index = 0) {
+export function sanePlayer(raw, index = 0, goal = GOAL_MAX) {
   const p = raw && typeof raw === 'object' ? raw : {}
   return {
     id: typeof p.id === 'string' && p.id ? p.id : `jugador-${index}`,
     name: WRITABLE.name(p.name),
     sex: WRITABLE.sex(p.sex),
     color: WRITABLE.color(p.color),
-    level: whole(p.level, 1, 1, MAX_LEVEL),
+    level: whole(p.level, 1, 1, goal),
     gear: whole(p.gear, 0, 0, MAX_GEAR),
     bad: whole(p.bad, 0, 0, MAX_BAD),
   }
@@ -53,9 +66,11 @@ export function sanePlayer(raw, index = 0) {
 
 export function saneState(raw) {
   const players = Array.isArray(raw?.players) ? raw.players : []
+  const goal = goalOf(raw)
   return {
     started: Boolean(raw?.started),
-    players: players.slice(0, MAX_PLAYERS).map(sanePlayer),
+    goal,
+    players: players.slice(0, MAX_PLAYERS).map((p, i) => sanePlayer(p, i, goal)),
   }
 }
 
@@ -108,8 +123,21 @@ export function reduce(state, action) {
       return mapPlayer(state, action.id, (p) => ({ ...p, [action.field]: clean(action.value) }))
     }
 
+    // Escribir un numero a mano es afirmar un valor, no sumar: si pones 18 de
+    // equipo, quieres 18. Los botones -/+ siguen mandando incrementos, que es
+    // donde importa que dos aparatos a la vez sumen en vez de pisarse.
+    case 'put': {
+      const [min, max] = limitsFor(state, action.field) ?? []
+      if (min === undefined) return state
+      if (!Number.isFinite(action.value)) return state
+      return mapPlayer(state, action.id, (p) => ({
+        ...p,
+        [action.field]: clamp(Math.trunc(action.value), min, max),
+      }))
+    }
+
     case 'bump': {
-      const [min, max] = LIMITS[action.field] ?? []
+      const [min, max] = limitsFor(state, action.field) ?? []
       if (min === undefined) return state
       // El delta viaja por la red y ademas se agrupa al mantener pulsado, asi
       // que puede ser cualquier entero, pero entero.
@@ -129,6 +157,23 @@ export function reduce(state, action) {
           name: String(p.name ?? '').trim() || `Jugador ${i + 1}`,
         })),
       }
+
+    case 'goal': {
+      // A cuanto se juega se decide antes de empezar (o al reiniciar la mesa):
+      // cambiarlo con la partida en marcha solo serviria para discutir.
+      if (!fresh(state)) return state
+      const goal = whole(action.value, GOAL_DEFAULT, GOAL_MIN, GOAL_MAX)
+      return {
+        ...state,
+        goal,
+        players: state.players.map((p) => ({ ...p, level: Math.min(p.level, goal) })),
+      }
+    }
+
+    // Borron y cuenta nueva, sin jugadores. Se queda el nivel objetivo, que es
+    // como juega el grupo y no cambia de una partida a otra.
+    case 'clear':
+      return { ...EMPTY, goal: goalOf(state) }
 
     case 'edit':
       return { ...state, started: false }

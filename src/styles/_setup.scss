@@ -11,7 +11,8 @@
   &__inner {
     width: 100%;
     max-width: 34rem;
-    margin: auto;
+    display: flex;
+    flex-direction: column;
   }
 
   &__head {
@@ -204,3 +205,118 @@
     white-space: nowrap;
   }
 }
+
+// A que nivel se gana esta partida: el estandar son 10, pero hay grupos que
+// juegan a 20.
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: .6rem .75rem .6rem 1rem;
+  border: 1px solid t.$line;
+  border-radius: 8px;
+  background: t.$surface;
+
+  &__label {
+    font-size: .9rem;
+    letter-spacing: .06em;
+    color: t.$muted;
+  }
+
+  &__stepper {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+
+  &__value {
+    min-width: 2ch;
+    text-align: center;
+    font-size: 1.35rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__btn {
+    width: 2.4rem;
+    height: 2.4rem;
+    border: 1px solid t.$line;
+    border-radius: 6px;
+    background: t.$raised;
+    color: t.$ink;
+    font-family: t.$ui;
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+
+    &:disabled { opacity: .35; }
+  }
+}
+
+// Version y repositorio: lo primero que hace falta cuando alguien reporta algo.
+.setup__pie {
+  margin: 1.25rem 0 0;
+  font-size: .75rem;
+  letter-spacing: .04em;
+  color: t.$muted;
+
+  a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: t.$line;
+  }
+}
+
+// 4: las pantallas empiezan arriba, no centradas en vertical.
+.setup__inner { margin: 0 auto; }
+
+// 3: el idioma siempre arriba a la derecha, junto al titulo.
+.setup__head { position: relative; }
+
+.setup__head .lang {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+}
+
+// La sala, arriba del todo.
+.setup__inner > .room-chip {
+  align-self: flex-start;
+  margin-bottom: .6rem;
+}
+
+// El numero del nivel objetivo se puede escribir a mano.
+.meta__value {
+  width: 3ch;
+  border: 0;
+  background: none;
+  color: t.$ink;
+  font-family: t.$ui;
+  font-size: 1.35rem;
+  font-weight: 600;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  -moz-appearance: textfield;
+}
+
+.meta__btn {
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+// El titulo no se mete por debajo del selector de idioma.
+.setup__title { padding-right: 3.5rem; }
+
+.setup__head .lang {
+  width: 3.6rem;
+  padding: .3rem .2rem;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.setup__list,
+.setup__empty { margin-top: .9rem; }

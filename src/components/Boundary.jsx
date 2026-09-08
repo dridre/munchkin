@@ -1,9 +1,12 @@
 import { Component } from 'react'
+import { I18nCtx, translate } from '../i18n.jsx'
 
 // Ultima red: si algo revienta a mitad de partida, la PWA instalada se queda en
 // negro y recargar no arregla nada, porque el estado malo esta guardado. Esto da
 // la salida sin tener que borrar los datos del sitio a mano.
 export default class Boundary extends Component {
+  static contextType = I18nCtx
+
   state = { roto: false }
 
   static getDerivedStateFromError() {
@@ -13,12 +16,13 @@ export default class Boundary extends Component {
   render() {
     if (!this.state.roto) return this.props.children
 
+    // Si lo que revento fue el propio proveedor de idioma, tiramos de ingles.
+    const t = this.context?.t ?? ((key) => translate('en', key))
+
     return (
       <div className="roto">
-        <h1 className="roto__title">Se ha atascado</h1>
-        <p className="roto__hint">
-          La partida guardada en este aparato no se puede leer. Empezando de cero se arregla.
-        </p>
+        <h1 className="roto__title">{t('boundary.title')}</h1>
+        <p className="roto__hint">{t('boundary.hint')}</p>
         <button
           type="button"
           className="roto__btn"
@@ -31,7 +35,7 @@ export default class Boundary extends Component {
             location.reload()
           }}
         >
-          Empezar de cero
+          {t('boundary.action')}
         </button>
       </div>
     )

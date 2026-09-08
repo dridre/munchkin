@@ -1,9 +1,13 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { version } from './package.json'
 
 export default defineConfig({
   base: './',
+  // Para poder ensenarla en la app: si alguien reporta algo, lo primero es
+  // saber que version lleva.
+  define: { __VERSION__: JSON.stringify(version) },
   plugins: [
     react(),
     VitePWA({
@@ -11,9 +15,10 @@ export default defineConfig({
       workbox: { globPatterns: ['**/*.{js,css,html,svg,woff2}'] },
       includeAssets: ['icon.svg'],
       manifest: {
-        name: 'Munchkin — Contador',
+        name: 'Munchkin Salas',
         short_name: 'Munchkin',
-        description: 'Contador de niveles y equipo para Munchkin',
+        description:
+          'Contador de niveles y equipo para Munchkin. Cada uno lleva su personaje desde su movil y la mesa lo ve todo.',
         lang: 'es',
         start_url: './',
         display: 'fullscreen',

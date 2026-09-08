@@ -16,5 +16,8 @@ export function useHold(step) {
     onPointerLeave: machine.current.stop,
     onPointerCancel: machine.current.stop,
     onClick: machine.current.click,
+    // Mantener pulsado en un movil saca el menu de "copiar/pegar" o el del
+    // boton derecho en escritorio; con estos botones nunca interesa.
+    onContextMenu: (e) => e.preventDefault(),
   }
 }

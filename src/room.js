@@ -24,7 +24,9 @@ export async function createRoom(state) {
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(state),
   })
-  if (!res.ok) throw new Error('no se pudo crear la sala')
+  // El servidor limita cuantas salas se pueden crear por minuto y por IP.
+  if (res.status === 429) throw new Error('tooMany')
+  if (!res.ok) throw new Error('create')
   const { code } = await res.json()
   return code
 }

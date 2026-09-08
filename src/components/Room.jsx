@@ -1,15 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Button, Dialog, TextField } from '@mui/material'
+import { useT } from '../i18n.jsx'
 import { CODE_LENGTH, linkFor } from '../room.js'
 
-const STATUS = {
-  idle: 'Sin sala',
-  connecting: 'Conectando…',
-  online: 'Conectado',
-  offline: 'Sin conexión',
-}
+const STATUS = (t, status) => t(`status.${status}`)
 
 export function RoomChip({ room, onOpen, corner }) {
+  const { t } = useT()
+
   if (!room.available) return null
 
   return (
@@ -17,10 +15,10 @@ export function RoomChip({ room, onOpen, corner }) {
       type="button"
       className={`room-chip room-chip--${room.status}${corner ? ' room-chip--corner' : ''}`}
       onClick={onOpen}
-      title={STATUS[room.status]}
+      title={STATUS(t, room.status)}
     >
       <span className="room-chip__dot" />
-      {room.code ?? 'Sala'}
+      {room.code ?? t('room.title')}
     </button>
   )
 }
@@ -52,6 +50,7 @@ function Qr({ code }) {
 }
 
 export function RoomPanel({ open, room, onClose }) {
+  const { t } = useT()
   const [typed, setTyped] = useState('')
 
   return (
@@ -59,35 +58,29 @@ export function RoomPanel({ open, room, onClose }) {
       <div className="room">
         {!room.available && (
           <>
-            <h2 className="room__title">Sala</h2>
-            <p className="room__hint">
-              Para jugar con varios aparatos hay que desplegar el servidor de salas y apuntar
-              a él con <code>VITE_ROOM_URL</code>. Mientras tanto la app funciona entera en
-              este aparato.
-            </p>
+            <h2 className="room__title">{t('room.title')}</h2>
+            <p className="room__hint">{t('room.notReady')}</p>
           </>
         )}
 
         {room.available && room.code && (
           <>
-            <h2 className="room__title">Escanea para entrar</h2>
+            <h2 className="room__title">{t('room.scan')}</h2>
             <Qr code={room.code} />
-            <p className="room__hint">O entra a mano con este código:</p>
+            <p className="room__hint">{t('room.orCode')}</p>
             <p className="room__code">{room.code}</p>
             <p className={`room__status room__status--${room.status}`}>
-              {STATUS[room.status]}
+              {STATUS(t, room.status)}
               {room.devices > 0 &&
-                ` · ${room.devices} ${room.devices === 1 ? 'aparato' : 'aparatos'}`}
+                ` · ${t(room.devices === 1 ? 'room.device' : 'room.devices', { n: room.devices })}`}
             </p>
-            <p className="room__hint">
-              Los nombres viajan a un servidor en Cloudflare y la sala se borra sola a las 24 h.
-            </p>
+            <p className="room__hint">{t('room.privacy')}</p>
             <div className="room__actions">
               <Button className="btn-ghost" onClick={room.leave}>
-                Salir de la sala
+                {t('room.leave')}
               </Button>
               <Button className="btn-main" onClick={onClose}>
-                Listo
+                {t('room.done')}
               </Button>
             </div>
           </>
@@ -95,32 +88,30 @@ export function RoomPanel({ open, room, onClose }) {
 
         {room.available && !room.code && (
           <>
-            <h2 className="room__title">Sala</h2>
-            <p className="room__hint">
-              Crea una sala desde la pantalla de la mesa y que cada uno entre con su móvil.
-            </p>
+            <h2 className="room__title">{t('room.title')}</h2>
+            <p className="room__hint">{t('room.createHint')}</p>
             <Button className="btn-main room__create" onClick={room.create}>
-              Crear sala
+              {t('room.create')}
             </Button>
 
-            <p className="room__hint room__hint--split">o entra en una que ya exista</p>
+            <p className="room__hint room__hint--split">{t('room.orJoin')}</p>
             <div className="room__join">
               <TextField
                 className="field"
-                label="Código"
+                label={t('room.code')}
                 value={typed}
                 onChange={(e) => setTyped(e.target.value.toUpperCase())}
                 inputProps={{ maxLength: CODE_LENGTH, autoCapitalize: 'characters' }}
                 size="small"
               />
               <Button className="btn-ghost" onClick={() => room.join(typed)}>
-                Entrar
+                {t('room.enter')}
               </Button>
             </div>
           </>
         )}
 
-        {room.error && <p className="room__error">{room.error}</p>}
+        {room.error && <p className="room__error">{t(room.error)}</p>}
       </div>
     </Dialog>
   )

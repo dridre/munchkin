@@ -31,6 +31,35 @@ const newCode = () =>
 
 const roomFor = (env, code) => env.ROOMS.get(env.ROOMS.idFromName(code))
 
+// Topes por IP: sin esto, un bucle de `curl` puede crear salas hasta agotar la
+// cuota diaria de la cuenta, y con ella las partidas de todo el mundo. Tambien
+// frena el ir probando codigos de cuatro letras uno por uno.
+//
+// El binding de rate limiting de Cloudflare esta disponible pero no aplica nada
+// en esta cuenta (comprobado: con limite de 3 cada 10 s pasan ocho seguidas),
+// asi que se cuenta con un Durable Object por IP, que si es fiable.
+const CREATE_CAP = { limit: 10, period: 60_000 }
+const JOIN_CAP = { limit: 60, period: 60_000 }
+
+async function allowed(env, request, cap) {
+  const ip = request.headers.get('CF-Connecting-IP') ?? 'desconocida'
+  try {
+    const contador = env.LIMITS.get(env.LIMITS.idFromName(`${cap.limit}:${cap.period}:${ip}`))
+    const res = await contador.fetch('https://limite/', {
+      method: 'POST',
+      body: JSON.stringify(cap),
+    })
+    const { ok } = await res.json()
+    return ok
+  } catch {
+    // Si el contador falla, mejor dejar jugar que cerrar la puerta.
+    return true
+  }
+}
+
+const tooMany = () =>
+  json({ error: 'demasiadas peticiones, prueba en un minuto' }, 429)
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url)
@@ -39,6 +68,8 @@ export default {
 
     // La mesa crea la sala y le pasa la partida que ya tiene montada.
     if (request.method === 'POST' && url.pathname === '/room') {
+      if (!(await allowed(env, request, CREATE_CAP))) return tooMany()
+
       const body = await request.json().catch(() => null)
       if (!Array.isArray(body?.players)) return json({ error: 'partida no valida' }, 400)
 
@@ -57,10 +88,39 @@ export default {
     }
 
     const joining = url.pathname.match(/^\/room\/([A-Z0-9]{4})\/ws$/)
-    if (joining) return roomFor(env, joining[1]).fetch(request)
+    if (joining) {
+      if (!(await allowed(env, request, JOIN_CAP))) return tooMany()
+      return roomFor(env, joining[1]).fetch(request)
+    }
 
     return new Response('Salas de Munchkin', { headers: CORS })
   },
+}
+
+// Una ventana de tiempo por IP. Un objeto por IP y por tope, que se borra solo
+// en cuanto deja de usarse.
+export class Limiter {
+  constructor(ctx) {
+    this.ctx = ctx
+  }
+
+  async fetch(request) {
+    const { limit, period } = await request.json()
+    const ahora = Date.now()
+
+    let ventana = await this.ctx.storage.get('ventana')
+    if (!ventana || ahora - ventana.desde > period) ventana = { desde: ahora, n: 0 }
+    ventana.n++
+
+    await this.ctx.storage.put('ventana', ventana)
+    await this.ctx.storage.setAlarm(ahora + period * 3)
+
+    return Response.json({ ok: ventana.n <= limit })
+  }
+
+  async alarm() {
+    await this.ctx.storage.deleteAll()
+  }
 }
 
 export class Room {

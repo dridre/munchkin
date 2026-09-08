@@ -2,7 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import { Button, IconButton, TextField } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
-import { MAX_PLAYERS, newPlayer } from '../state.js'
+import { useT } from '../i18n.jsx'
+import { useHold } from '../useHold.js'
+import LangPick from './LangPick.jsx'
+import NumBox from './NumBox.jsx'
+import { GOAL_MAX, GOAL_MIN, MAX_PLAYERS, fresh, newPlayer } from '../state.js'
 import SexPick from './SexPick.jsx'
 import { RoomChip } from './Room.jsx'
 
@@ -57,18 +61,68 @@ function NameField({ value, label, onCommit }) {
   )
 }
 
-export default function Setup({ players, dispatch, room, onRoom }) {
+export default function Setup({ players, goal, dispatch, room, onRoom }) {
+  const { t } = useT()
+  // A cuanto se juega solo se toca antes de empezar a puntuar.
+  const puedeCambiarObjetivo = fresh({ players })
   const set = (id, field) => (value) => dispatch({ type: 'set', id, field, value })
+
+  // Mantener pulsado tambien aqui: de 10 a 20 son diez toques.
+  const mover = (delta) => () => {
+    const siguiente = goal + delta
+    if (!puedeCambiarObjetivo || siguiente < GOAL_MIN || siguiente > GOAL_MAX) return false
+    dispatch({ type: 'goal', value: siguiente })
+  }
+  const bajarObjetivo = useHold(mover(-1))
+  const subirObjetivo = useHold(mover(1))
 
   return (
     <div className="setup">
       <div className="setup__inner">
         <div className="setup__head">
-          <h1 className="setup__title">Munchkin</h1>
+          <LangPick />
+          <h1 className="setup__title">{t('app.name')}</h1>
+        </div>
+
+        <RoomChip room={room} onOpen={onRoom} />
+
+        <div className="meta">
+          <span className="meta__label">
+            {t('goal.label')}
+            {!puedeCambiarObjetivo && <em className="meta__locked">{t('goal.locked')}</em>}
+          </span>
+          <div className="meta__stepper">
+            <button
+              type="button"
+              className="meta__btn"
+              aria-label={t('goal.down')}
+              disabled={goal <= GOAL_MIN || !puedeCambiarObjetivo}
+              {...bajarObjetivo}
+            >
+              −
+            </button>
+            <NumBox
+              className="meta__value"
+              value={goal}
+              min={GOAL_MIN}
+              max={GOAL_MAX}
+              label={t('goal.label')}
+              onSet={(n) => dispatch({ type: 'goal', value: n })}
+            />
+            <button
+              type="button"
+              className="meta__btn"
+              aria-label={t('goal.up')}
+              disabled={goal >= GOAL_MAX || !puedeCambiarObjetivo}
+              {...subirObjetivo}
+            >
+              +
+            </button>
+          </div>
         </div>
 
         {players.length === 0 ? (
-          <p className="setup__empty">Todavía no hay nadie en la partida.</p>
+          <p className="setup__empty">{t('setup.empty')}</p>
         ) : (
           <div className="setup__list">
             {players.map((p, i) => (
@@ -77,13 +131,13 @@ export default function Setup({ players, dispatch, room, onRoom }) {
                   type="color"
                   className="slot__color"
                   value={p.color}
-                  aria-label={`Color de ${p.name || `jugador ${i + 1}`}`}
+                  aria-label={t('setup.color', { name: p.name || t('setup.player', { n: i + 1 }) })}
                   onChange={(e) => set(p.id, 'color')(e.target.value)}
                 />
 
                 <NameField
                   value={p.name}
-                  label={`Jugador ${i + 1}`}
+                  label={t('setup.player', { n: i + 1 })}
                   onCommit={set(p.id, 'name')}
                 />
 
@@ -91,7 +145,7 @@ export default function Setup({ players, dispatch, room, onRoom }) {
 
                 <IconButton
                   className="icon-btn"
-                  aria-label={`Quitar a ${p.name || `jugador ${i + 1}`}`}
+                  aria-label={t('setup.remove', { name: p.name || t('setup.player', { n: i + 1 }) })}
                   onClick={() => dispatch({ type: 'remove', id: p.id })}
                 >
                   <DeleteIcon />
@@ -101,22 +155,28 @@ export default function Setup({ players, dispatch, room, onRoom }) {
           </div>
         )}
 
+        <p className="setup__pie">
+          <a href="https://github.com/dridre/munchkin" target="_blank" rel="noreferrer">
+            github.com/dridre/munchkin
+          </a>{' '}
+          · v{__VERSION__}
+        </p>
+
         <div className="setup__actions">
-          <RoomChip room={room} onOpen={onRoom} />
           <Button
             className="btn-ghost"
             startIcon={<AddIcon />}
             disabled={players.length >= MAX_PLAYERS}
             onClick={() => dispatch({ type: 'add', player: newPlayer(players) })}
           >
-            Añadir jugador
+            {t('setup.add')}
           </Button>
           <Button
             className="btn-main"
             disabled={players.length === 0}
             onClick={() => dispatch({ type: 'start' })}
           >
-            Empezar
+            {t('setup.start')}
           </Button>
         </div>
       </div>

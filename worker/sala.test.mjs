@@ -7,6 +7,7 @@ const URL_BASE = process.env.ROOM_URL ?? 'http://127.0.0.1:8787'
 
 const partida = {
   started: true,
+  goal: 10,
   players: [
     { id: 'a', name: 'Rubén', sex: 'm', color: '#e5484d', level: 1, gear: 0, bad: 0 },
     { id: 'b', name: 'Marta', sex: 'f', color: '#3e63dd', level: 4, gear: 2, bad: 0 },
@@ -40,6 +41,16 @@ const siguiente = (ws) =>
 
 const manda = (ws, action, extra = {}) =>
   ws.send(JSON.stringify({ type: 'action', action, ...extra }))
+
+// Los avisos de acciones anteriores pueden llegar tarde, asi que se espera a que
+// se cumpla la condicion en vez de fiarse del primer mensaje que entre.
+async function esperar(ws, cumple, que, intentos = 8) {
+  for (let i = 0; i < intentos; i++) {
+    const msg = await siguiente(ws)
+    if (cumple(msg)) return msg
+  }
+  throw new Error(`no llego: ${que}`)
+}
 
 // --- crear una sala ----------------------------------------------------------
 const creada = await fetch(`${URL_BASE}/room`, {
@@ -121,7 +132,15 @@ assert.equal(sano.players[0].id, 'a', 'nadie ha cambiado el id de un jugador')
 assert.ok(Number.isFinite(sano.players[0].level), 'ni ha metido un NaN en el nivel')
 assert.ok(sano.players[0].name.length <= 14, 'ni un nombre de nueve mil letras')
 
+// Los buzones arrastran los avisos de todo lo anterior: se vacian para poder
+// medir lo siguiente sin contar cola vieja.
+const vaciar = () => {
+  mesa.buzon.length = 0
+  movil.buzon.length = 0
+}
+
 // --- quien lleva cada personaje ---------------------------------------------
+vaciar()
 movil.send(JSON.stringify({ type: 'claim', role: 'a' }))
 let presencia = null
 for (let i = 0; i < 6 && !presencia; i++) {
@@ -141,6 +160,33 @@ const vuelve = await conectar(code)
 const { state } = await siguiente(vuelve)
 assert.equal(state.players[0].gear, 1, 'quien vuelve recibe el estado bueno')
 assert.equal(state.players[1].gear, 9, 'con todo lo que se perdio')
+
+// --- escribir un numero manda el valor, no un incremento --------------------
+vaciar()
+manda(vuelve, { type: 'put', id: 'b', field: 'gear', value: 7 })
+const puesto = await esperar(movil, (m) => m.state?.players?.[1]?.gear === 7, 'el valor escrito a mano')
+assert.equal(puesto.state.players[1].gear, 7, 'queda 7, no 7 sumado a lo que hubiera')
+
+// --- a cuanto se juega: solo antes de empezar o al reiniciar ----------------
+// A media partida la accion se ignora, aunque llegue desde otro aparato.
+vaciar()
+manda(vuelve, { type: 'goal', value: 20 })
+assert.equal((await siguiente(movil)).state.goal, 10, 'a media partida el objetivo no se cambia')
+
+// Al reiniciar la mesa vuelve a estar en juego.
+vaciar()
+manda(vuelve, { type: 'reset' })
+await esperar(movil, (m) => m.state?.players?.[0]?.level === 1, 'el reinicio llega')
+
+vaciar()
+manda(vuelve, { type: 'goal', value: 20 })
+await esperar(movil, (m) => m.state?.goal === 20, 'tras reiniciar se puede volver a decidir')
+
+// Y con el objetivo en 20 ya se pasa de 10.
+vaciar()
+manda(vuelve, { type: 'bump', id: 'a', field: 'level', delta: 15 })
+const pasa10 = await esperar(movil, (m) => m.state?.players?.[0]?.level > 10, 'con objetivo 20 se pasa de 10')
+assert.equal(pasa10.state.players[0].level, 16, 'y llega exactamente a 16')
 
 for (const ws of [movil, fantasma, vuelve]) ws.close()
 console.log('sala en vivo ok')

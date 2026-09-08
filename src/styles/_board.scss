@@ -41,10 +41,8 @@
     font-size: clamp(1rem, 14cqmin, 3rem);
     font-weight: 600;
     letter-spacing: .04em;
-    line-height: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    line-height: 1.05;
+    overflow-wrap: anywhere;
   }
 
   &__sex {
@@ -128,4 +126,12 @@
 .board-corner--bottom.MuiIconButton-root {
   top: auto;
   bottom: calc(env(safe-area-inset-bottom) + .6rem);
+}
+
+// El menu del jugador va pegado a la izquierda del boton del mapa, del mismo
+// tamano, y en el mismo sitio en las dos vistas.
+.board-menu--junto.MuiIconButton-root {
+  right: calc(env(safe-area-inset-right) + 3.9rem);
+  width: 2.8rem;
+  height: 2.8rem;
 }

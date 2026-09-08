@@ -1,18 +1,26 @@
 {
-  "name": "munchkin",
+  "name": "munchkin-salas",
+  "version": "1.0.0",
+  "description": "Contador de niveles, equipo y desventajas para Munchkin, con salas para que cada jugador use su propio movil.",
+  "license": "MIT",
+  "author": "dridre",
+  "homepage": "https://munchkin-btb.pages.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dridre/munchkin.git"
+  },
   "private": true,
-  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test": "node src/territory.test.mjs && node src/game.test.mjs && node src/hold.test.mjs && node src/room.test.mjs",
+    "test": "node src/territory.test.mjs && node src/game.test.mjs && node src/hold.test.mjs && node src/room.test.mjs && node src/dict.test.mjs",
     "deploy:sala": "npx --yes wrangler deploy --config worker/wrangler.jsonc",
     "test:sala": "node worker/sala.test.mjs",
     "dev:sala": "npx --yes wrangler dev --config worker/wrangler.jsonc --port 8787",
-    "deploy": "npm run build && npx --yes wrangler pages deploy dist --project-name=munchkin && npm run deploy:sala"
+    "deploy": "npm run build && npx --yes wrangler pages deploy dist --project-name=munchkin --branch=production && npm run deploy:sala"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

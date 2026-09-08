@@ -5,7 +5,10 @@ import {
   saneState,
   INK_DARK,
   INK_LIGHT,
-  MAX_LEVEL,
+  GOAL_DEFAULT,
+  GOAL_MAX,
+  GOAL_MIN,
+  fresh,
   force,
   inkFor,
   newPlayer,
@@ -61,7 +64,7 @@ const start = () => {
   const tope = Array.from({ length: 40 }, () => ({
     type: 'bump', id: uno, field: 'level', delta: 1,
   })).reduce(reduce, s)
-  assert.equal(tope.players[0].level, MAX_LEVEL, 'el nivel no se pasa del tope')
+  assert.equal(tope.players[0].level, GOAL_DEFAULT, 'el nivel no se pasa del objetivo')
 
   const suelo = reduce(s, { type: 'bump', id: uno, field: 'gear', delta: -5 })
   assert.equal(suelo.players[0].gear, 0, 'ni baja de cero')
@@ -165,3 +168,73 @@ console.log('acciones ok')
 }
 
 console.log('entrada hostil ok')
+
+// --- a que nivel se gana -----------------------------------------------------
+{
+  assert.equal(EMPTY.goal, GOAL_DEFAULT, 'por defecto se juega a 10')
+
+  const [base, uno] = start()
+  const epica = reduce(base, { type: 'goal', value: 20 })
+  assert.equal(epica.goal, 20, 'antes de empezar se puede subir a 20')
+  const subir = { type: 'bump', id: uno, field: 'level', delta: 1 }
+
+  const alto = Array.from({ length: 40 }, () => subir).reduce(reduce, epica)
+  assert.equal(alto.players[0].level, 20, 'a 20 se puede llegar a 20')
+
+  // Con la partida en marcha ya no se toca: se decide antes de empezar.
+  const enMarcha = reduce(alto, { type: 'goal', value: 10 })
+  assert.equal(enMarcha.goal, 20, 'a media partida el objetivo no se cambia')
+  assert.equal(enMarcha.players[0].level, 20, 'ni se recorta a nadie por sorpresa')
+
+  // Al reiniciar la mesa vuelve a estar en juego, y entonces si recorta.
+  const cero = reduce(alto, { type: 'reset' })
+  const corta = reduce(cero, { type: 'goal', value: 10 })
+  assert.equal(corta.goal, 10, 'tras reiniciar se puede volver a decidir')
+  assert.ok(fresh(cero), 'reiniciar deja la partida en limpio')
+
+  // Fuera de rango se ajusta, no revienta.
+  assert.equal(reduce(base, { type: 'goal', value: 999 }).goal, GOAL_MAX, 'con techo')
+  assert.equal(reduce(base, { type: 'goal', value: 0 }).goal, GOAL_MIN, 'y con suelo')
+  assert.equal(reduce(base, { type: 'goal', value: 'x' }).goal, GOAL_DEFAULT, 'y aguanta basura')
+  assert.equal(saneState({ players: [], goal: -3 }).goal, GOAL_MIN, 'un guardado raro se cura')
+}
+
+console.log('nivel objetivo ok')
+
+// --- escribir un numero a mano deja ese numero -------------------------------
+{
+  const [base, uno] = start()
+  const conEquipo = reduce(base, { type: 'bump', id: uno, field: 'gear', delta: 3 })
+
+  const puesto = reduce(conEquipo, { type: 'put', id: uno, field: 'gear', value: 18 })
+  assert.equal(puesto.players[0].gear, 18, 'escribir 18 deja 18, no 21')
+
+  const bajado = reduce(puesto, { type: 'put', id: uno, field: 'gear', value: 2 })
+  assert.equal(bajado.players[0].gear, 2, 'y tambien sirve para bajar')
+
+  // Los topes valen igual que con los botones.
+  assert.equal(
+    reduce(base, { type: 'put', id: uno, field: 'level', value: 999 }).players[0].level,
+    GOAL_DEFAULT,
+    'no se salta el nivel objetivo',
+  )
+  assert.equal(
+    reduce(base, { type: 'put', id: uno, field: 'gear', value: -4 }).players[0].gear,
+    0,
+    'ni baja de cero',
+  )
+
+  // Y lo que no es un numero, o un campo que no toca, se ignora.
+  for (const raro of [
+    { type: 'put', id: uno, field: 'gear', value: 'x' },
+    { type: 'put', id: uno, field: 'gear' },
+    { type: 'put', id: uno, field: 'name', value: 'trampa' },
+    { type: 'put', id: uno, field: 'id', value: 'trampa' },
+  ]) {
+    const despues = reduce(conEquipo, raro)
+    assert.equal(despues.players[0].gear, 3, `se ignora ${JSON.stringify(raro)}`)
+    assert.equal(despues.players[0].id, uno, 'y no se toca el id')
+  }
+}
+
+console.log('numero a mano ok')

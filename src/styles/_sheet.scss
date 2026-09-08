@@ -17,6 +17,10 @@
     align-items: center;
     gap: 1rem;
     padding: .2rem .2rem .2rem 1rem;
+
+    // Sin botones propios, hay que dejar hueco a los dos que flotan en la
+    // esquina: el menu y el del mapa.
+    &--hueco { padding-right: clamp(7rem, 19vmin, 9rem); }
   }
 
   &__name {
@@ -94,9 +98,12 @@
   }
 
   &__value {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 100%;
+    border: 0;
+    background: none;
+    text-align: center;
+    color: var(--player-ink);
+    font-family: t.$ui;
     font-size: clamp(2.4rem, 9vmin, 6rem);
     font-weight: 600;
     line-height: 1;

@@ -4,11 +4,12 @@ import Board from './components/Board.jsx'
 import PlayerScreen from './components/PlayerScreen.jsx'
 import PlayerSheet from './components/PlayerSheet.jsx'
 import RolePicker from './components/RolePicker.jsx'
-import Waiting from './components/Waiting.jsx'
 import { RoomPanel } from './components/Room.jsx'
+import { useT } from './i18n.jsx'
 import { TABLE, useGame, useRole, useWakeLock } from './state.js'
 
 export default function App() {
+  const { t } = useT()
   const [state, dispatch, room] = useGame()
   const [role, setRole] = useRole(room.code)
   const [openId, setOpenId] = useState(null)
@@ -26,11 +27,17 @@ export default function App() {
 
   let screen
 
-  if (!state.started && (role === TABLE || !room.code)) {
-    // Monta la partida quien hace de mesa; en solitario, este mismo aparato.
-    screen = <Setup players={state.players} dispatch={dispatch} room={room} onRoom={showRoom} />
-  } else if (!state.started) {
-    screen = <Waiting room={room} onRoom={showRoom} onTable={() => setRole(TABLE)} />
+  if (!state.started) {
+    // La monta cualquiera: no hace falta ser la mesa para tocar la lista.
+    screen = (
+      <Setup
+        players={state.players}
+        goal={state.goal}
+        dispatch={dispatch}
+        room={room}
+        onRoom={showRoom}
+      />
+    )
   } else if (role !== TABLE && !me) {
     // Aun no se sabe que es este aparato, o el jugador que tenia ya no esta.
     screen = (
@@ -39,9 +46,10 @@ export default function App() {
         taken={room.taken}
         onPick={setRole}
         onNewGame={() => {
-          dispatch({ type: 'reset' })
-          dispatch({ type: 'edit' })
-          setRole(TABLE)
+          // Borra la partida entera y suelta el papel: quien monte la siguiente
+          // decidira despues si quiere ser mesa o jugador.
+          dispatch({ type: 'clear' })
+          setRole(null)
         }}
         room={room}
         onRoom={showRoom}
@@ -52,8 +60,11 @@ export default function App() {
       <PlayerScreen
         me={me}
         players={state.players}
+        goal={state.goal}
         dispatch={dispatch}
         onLeave={() => setRole(null)}
+        onEdit={() => dispatch({ type: 'edit' })}
+        onReset={() => dispatch({ type: 'reset' })}
         room={room}
         onRoom={showRoom}
       />
@@ -72,6 +83,7 @@ export default function App() {
         />
         <PlayerSheet
           player={state.players.find((p) => p.id === openId)}
+          goal={state.goal}
           dispatch={dispatch}
           onClose={() => setOpenId(null)}
         />
@@ -87,7 +99,7 @@ export default function App() {
           esta cerrado: nadie se enteraba de nada. */}
       {room.error && (
         <button type="button" className="aviso" onClick={room.dismiss}>
-          {room.error}
+          {t(room.error)}
         </button>
       )}
 

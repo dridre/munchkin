@@ -96,7 +96,7 @@ export function useGame() {
     if (message.type === 'missing') {
       setCode(null)
       write(ROOM_KEY, null)
-      setError('Esa sala ya no existe.')
+      setError('error.missing')
       return
     }
 
@@ -178,14 +178,14 @@ export function useGame() {
       setError(null)
       try {
         enter(await createRoom(state))
-      } catch {
-        setError('No se pudo crear la sala. ¿Hay internet?')
+      } catch (e) {
+        setError(e?.message === 'tooMany' ? 'error.tooMany' : 'error.create')
       }
     },
     join: (raw) => {
       const clean = cleanCode(raw)
       if (clean.length === 4) enter(clean)
-      else setError('El código son cuatro letras.')
+      else setError('error.code')
     },
     leave: () => enter(null),
   }

@@ -7,12 +7,15 @@ import '@fontsource/chakra-petch/latin-500.css'
 import '@fontsource/chakra-petch/latin-600.css'
 import App from './App.jsx'
 import Boundary from './components/Boundary.jsx'
+import { Idiomas } from './i18n.jsx'
 import './styles/main.scss'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Boundary>
-      <App />
-    </Boundary>
+    <Idiomas>
+      <Boundary>
+        <App />
+      </Boundary>
+    </Idiomas>
   </StrictMode>,
 )

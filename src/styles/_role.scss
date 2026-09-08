@@ -7,11 +7,13 @@
   padding: clamp(1.5rem, 5vw, 3.5rem) clamp(1.25rem, 8vw, 6rem);
 
   &__inner {
+    position: relative;
     width: 100%;
     max-width: 34rem;
-    margin: auto;
+    margin: 0 auto;
     display: grid;
     gap: .6rem;
+    align-content: start;
   }
 
   &__title {
@@ -54,11 +56,11 @@
     font-size: 1.25rem;
     font-weight: 600;
     letter-spacing: .06em;
-    line-height: 1;
+    line-height: 1.15;
     max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    // Antes se cortaba con puntos suspensivos: mejor que baje de linea, que
+    // saber quien eres importa mas que la altura de la tarjeta.
+    overflow-wrap: anywhere;
   }
 
   &__hint {
@@ -122,4 +124,42 @@
     letter-spacing: .1em;
     cursor: pointer;
   }
+}
+
+// Selector de idioma: discreto, pero alcanzable desde las pantallas de entrada.
+.role__inner .lang {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.lang {
+  justify-self: start;
+  max-width: 10rem;
+  padding: .35rem .5rem;
+  border: 1px solid t.$line;
+  border-radius: 6px;
+  background: t.$surface;
+  color: t.$muted;
+  font-family: t.$ui;
+  font-size: .85rem;
+  cursor: pointer;
+}
+
+.setup__head .lang {
+  margin-bottom: 1rem;
+}
+
+.meta__locked {
+  display: block;
+  margin-top: .15rem;
+  font-size: .75rem;
+  font-style: normal;
+  opacity: .7;
+}
+
+// El chip de sala no se estira a todo el ancho ni se mete bajo el idioma.
+.role__inner > .room-chip {
+  justify-self: start;
+  margin-right: 4rem;
 }

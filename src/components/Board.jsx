@@ -1,18 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogTitle,
-  IconButton,
-  Menu,
-  MenuItem,
-} from '@mui/material'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
 import ShieldIcon from '@mui/icons-material/Shield'
+import { useT } from '../i18n.jsx'
 import { force, inkFor, weight } from '../state.js'
 import { layout } from '../territory.js'
 import { useCssVars } from '../useCssVars.js'
+import GameMenu from './GameMenu.jsx'
 import SkullIcon from './SkullIcon.jsx'
 import { RoomChip } from './Room.jsx'
 
@@ -30,6 +22,7 @@ function useAspect() {
 }
 
 function Region({ player, rect, onSelect }) {
+  const { t } = useT()
   const ref = useCssVars({
     '--x': rect.x,
     '--y': rect.y,
@@ -51,15 +44,15 @@ function Region({ player, rect, onSelect }) {
       </span>
       <span className="region__force">{force(player)}</span>
       <span className="region__stats">
-        <span className="region__stat" title="Nivel">
-          <span className="region__tag">Lv</span>
+        <span className="region__stat" title={t('stat.level')}>
+          <span className="region__tag">{t('stat.lv')}</span>
           <b>{player.level}</b>
         </span>
-        <span className="region__stat region__stat--extra" title="Equipo">
+        <span className="region__stat region__stat--extra" title={t('stat.gear')}>
           <ShieldIcon className="region__icon" />
           <b>{player.gear}</b>
         </span>
-        <span className="region__stat region__stat--extra" title="Desventajas">
+        <span className="region__stat region__stat--extra" title={t('stat.bad')}>
           <SkullIcon className="region__skull" />
           <b>{player.bad}</b>
         </span>
@@ -71,8 +64,6 @@ function Region({ player, rect, onSelect }) {
 // Sin las opciones de partida (`onEdit` y compañia) el tablero es de mirar:
 // eso es cosa de la mesa, no del movil de un jugador.
 export default function Board({ players, onSelect, onEdit, onReset, onRole, room, onRoom }) {
-  const [anchorEl, setAnchorEl] = useState(null)
-  const [confirm, setConfirm] = useState(false)
   const aspect = useAspect()
   const rects = useMemo(() => layout(players.map(weight), aspect), [players, aspect])
 
@@ -91,75 +82,7 @@ export default function Board({ players, onSelect, onEdit, onReset, onRole, room
 
       <RoomChip room={room} onOpen={onRoom} corner />
 
-      {onEdit && (
-        <>
-      <IconButton
-        className="board-menu"
-        aria-label="Opciones de la partida"
-        onClick={(e) => setAnchorEl(e.currentTarget)}
-      >
-        <MoreVertIcon />
-      </IconButton>
-
-      <Menu
-        className="menu"
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={() => setAnchorEl(null)}
-      >
-        <MenuItem
-          onClick={() => {
-            setAnchorEl(null)
-            onRoom()
-          }}
-        >
-          Sala
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            setAnchorEl(null)
-            onRole()
-          }}
-        >
-          ¿Quién es este aparato?
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            setAnchorEl(null)
-            onEdit()
-          }}
-        >
-          Editar jugadores
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            setAnchorEl(null)
-            setConfirm(true)
-          }}
-        >
-          Empezar de cero
-        </MenuItem>
-      </Menu>
-
-      <Dialog className="ask" open={confirm} onClose={() => setConfirm(false)}>
-        <DialogTitle>¿Estás seguro?</DialogTitle>
-        <DialogActions>
-          <Button className="btn-ghost" onClick={() => setConfirm(false)}>
-            Seguir jugando
-          </Button>
-          <Button
-            className="btn-main"
-            onClick={() => {
-              setConfirm(false)
-              onReset()
-            }}
-          >
-            Reiniciar
-          </Button>
-        </DialogActions>
-      </Dialog>
-        </>
-      )}
+      {onEdit && <GameMenu onEdit={onEdit} onReset={onReset} onRole={onRole} />}
     </>
   )
 }
