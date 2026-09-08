@@ -273,20 +273,7 @@
 .setup__inner { margin: 0 auto; }
 
 // 3: el idioma siempre arriba a la derecha, junto al titulo.
-.setup__head { position: relative; }
-
-.setup__head .lang {
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin: 0;
-}
-
-// La sala, arriba del todo.
-.setup__inner > .room-chip {
-  align-self: flex-start;
-  margin-bottom: .6rem;
-}
+.setup__inner > .fila { margin-bottom: .9rem; }
 
 // El numero del nivel objetivo se puede escribir a mano.
 .meta__value {
@@ -309,14 +296,7 @@
 }
 
 // El titulo no se mete por debajo del selector de idioma.
-.setup__title { padding-right: 3.5rem; }
 
-.setup__head .lang {
-  width: 3.6rem;
-  padding: .3rem .2rem;
-  text-align: center;
-  font-size: 1rem;
-}
 
 .setup__list,
 .setup__empty { margin-top: .9rem; }

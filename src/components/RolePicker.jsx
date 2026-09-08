@@ -27,8 +27,10 @@ export default function RolePicker({ players, taken = [], onPick, onNewGame, roo
   return (
     <div className="role">
       <div className="role__inner">
-        <RoomChip room={room} onOpen={onRoom} />
-        <LangPick />
+        <div className="fila">
+          <RoomChip room={room} onOpen={onRoom} />
+          <LangPick />
+        </div>
         <h1 className="role__title">{t('role.who')}</h1>
 
         <button type="button" className="role__card role__card--table" onClick={() => onPick(TABLE)}>

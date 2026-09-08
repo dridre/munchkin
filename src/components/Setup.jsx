@@ -80,11 +80,15 @@ export default function Setup({ players, goal, dispatch, room, onRoom }) {
     <div className="setup">
       <div className="setup__inner">
         <div className="setup__head">
-          <LangPick />
           <h1 className="setup__title">{t('app.name')}</h1>
         </div>
 
-        <RoomChip room={room} onOpen={onRoom} />
+        {/* Sala e idioma comparten fila, uno en cada punta: asi el titulo se
+            queda con todo el ancho y no se parte en dos. */}
+        <div className="fila">
+          <RoomChip room={room} onOpen={onRoom} />
+          <LangPick />
+        </div>
 
         <div className="meta">
           <span className="meta__label">

@@ -1,22 +1,28 @@
+import { MenuItem, Select } from '@mui/material'
 import { LANGS, useT } from '../i18n.jsx'
+import Flag from './Flag.jsx'
 
-// Un `select` nativo a proposito: en el movil abre el selector del sistema, se
-// maneja con teclado y no cuesta ni un byte de libreria.
+// Un `select` nativo no puede llevar SVG dentro de las opciones, y las banderas
+// emoji no se dibujan en Windows. Con el de Material UI, que ya esta en el
+// paquete, se ve la bandera sola cerrado y bandera + idioma al abrirlo.
 export default function LangPick() {
   const { lang, setLang, t } = useT()
 
   return (
-    <select
+    <Select
       className="lang"
-      aria-label={t('lang.label')}
       value={lang}
       onChange={(e) => setLang(e.target.value)}
+      renderValue={(code) => <Flag code={code} />}
+      inputProps={{ 'aria-label': t('lang.label') }}
+      MenuProps={{ className: 'menu' }}
     >
       {LANGS.map((l) => (
-        <option key={l.code} value={l.code} title={l.name}>
-          {l.flag}
-        </option>
+        <MenuItem key={l.code} value={l.code}>
+          <Flag code={l.code} />
+          <span className="lang__name">{l.name}</span>
+        </MenuItem>
       ))}
-    </select>
+    </Select>
   )
 }
