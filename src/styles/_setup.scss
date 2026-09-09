@@ -17,8 +17,8 @@
 
   &__head {
     flex: none;
-    margin-bottom: clamp(1.25rem, 3.5vw, 2rem);
-    padding-bottom: 1.1rem;
+    margin-bottom: clamp(.7rem, 2vw, 1rem);
+    padding-bottom: .7rem;
     border-bottom: 1px solid t.$line;
   }
 
