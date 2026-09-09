@@ -300,3 +300,52 @@
 
 .setup__list,
 .setup__empty { margin-top: .9rem; }
+
+// Qué es esto: el mismo texto de las paginas por idioma, visible y plegado.
+.about {
+  margin-top: 1.5rem;
+  border-top: 1px solid t.$line;
+  padding-top: .9rem;
+  color: t.$muted;
+  font-size: .9rem;
+  line-height: 1.6;
+
+  &__title {
+    cursor: pointer;
+    color: t.$ink;
+    font-weight: 600;
+    letter-spacing: .08em;
+    font-size: .95rem;
+  }
+
+  &__cuerpo {
+    padding-top: .5rem;
+
+    h2 {
+      margin: 1.2rem 0 .4rem;
+      color: t.$ink;
+      font-size: .95rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+    }
+
+    p { margin: 0 0 .6rem; }
+    ul, ol { margin: 0; padding-left: 1.2rem; }
+    li { margin-bottom: .35rem; }
+    dt { color: t.$ink; margin-top: .7rem; }
+    dd { margin: .2rem 0 0; }
+  }
+}
+
+// El texto de la semilla, para quien llegue sin JavaScript.
+.semilla {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+  line-height: 1.6;
+  color: t.$muted;
+
+  h1, h2, h3 { color: t.$ink; font-weight: 600; }
+  h1 { letter-spacing: .18em; }
+  li { margin-bottom: .35rem; }
+}

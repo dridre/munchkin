@@ -28,3 +28,12 @@ dist-ssr
 
 # estado local de wrangler
 .wrangler/
+
+# paginas por idioma: las genera scripts/pages.mjs
+/index.html
+/en/
+/fr/
+/de/
+/it/
+/pt/
+public/sitemap.xml

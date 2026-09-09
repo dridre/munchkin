@@ -20,7 +20,10 @@
     "deploy:sala": "npx --yes wrangler deploy --config worker/wrangler.jsonc",
     "test:sala": "node worker/sala.test.mjs",
     "dev:sala": "npx --yes wrangler dev --config worker/wrangler.jsonc --port 8787",
-    "deploy": "npm run build && npx --yes wrangler pages deploy dist --project-name=munchkin --branch=production && npm run deploy:sala"
+    "deploy": "npm run build && npx --yes wrangler pages deploy dist --project-name=munchkin --branch=production && npm run deploy:sala",
+    "pages": "node scripts/pages.mjs",
+    "prebuild": "npm run pages",
+    "predev": "npm run pages"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

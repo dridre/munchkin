@@ -38,21 +38,3 @@ button { font: inherit; }
     transition-duration: .001ms !important;
   }
 }
-
-// Lo que hay dentro de #root antes de que arranque React: para buscadores y
-// para quien llegue sin JavaScript. La app lo sustituye al montar.
-.semilla {
-  max-width: 34rem;
-  margin: 0 auto;
-  padding: 3rem 1.5rem;
-  line-height: 1.6;
-  color: t.$muted;
-
-  h1 {
-    color: t.$ink;
-    font-weight: 600;
-    letter-spacing: .2em;
-  }
-
-  li { margin-bottom: .35rem; }
-}

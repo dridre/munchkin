@@ -11,6 +11,11 @@ const Ctx = I18nCtx
 
 export function Idiomas({ children }) {
   const [lang, setLang] = useState(() => {
+    // La ruta gana: /en/ es una pagina en ingles y asi la comparte quien la
+    // comparte. Despues lo que eligio este aparato, y por ultimo el navegador.
+    const enRuta = location.pathname.split('/').filter(Boolean)[0]
+    if (CODES.includes(enRuta)) return enRuta
+
     try {
       const guardado = localStorage.getItem(KEY)
       if (guardado && CODES.includes(guardado)) return guardado

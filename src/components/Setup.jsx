@@ -4,6 +4,7 @@ import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useT } from '../i18n.jsx'
 import { useHold } from '../useHold.js'
+import About from './About.jsx'
 import LangPick from './LangPick.jsx'
 import NumBox from './NumBox.jsx'
 import { GOAL_MAX, GOAL_MIN, MAX_PLAYERS, fresh, newPlayer } from '../state.js'
@@ -158,6 +159,8 @@ export default function Setup({ players, goal, dispatch, room, onRoom }) {
             ))}
           </div>
         )}
+
+        <About />
 
         <p className="setup__pie">
           <a href="https://github.com/dridre/munchkin" target="_blank" rel="noreferrer">

@@ -2,25 +2,30 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0d1013" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-    <title>Munchkin Salas — contador de niveles y equipo</title>
-    <meta name="description" content="Contador de niveles, equipo y desventajas para Munchkin. Cada uno lleva su personaje desde su móvil y la mesa lo ve todo. Gratis y sin internet." />
+    <title>Munchkin Salas — contador de niveles y equipo online</title>
+    <meta name="description" content="Contador de niveles, equipo y desventajas para Munchkin. Cada jugador lleva su personaje desde su móvil y la pantalla de la mesa muestra quién va ganando. Gratis, sin cuentas y funciona sin internet." />
     <link rel="canonical" href="https://munchkin-btb.pages.dev/" />
     <meta name="robots" content="index, follow" />
+    <link rel="alternate" hreflang="es" href="https://munchkin-btb.pages.dev/" />
+    <link rel="alternate" hreflang="en" href="https://munchkin-btb.pages.dev/en/" />
+    <link rel="alternate" hreflang="fr" href="https://munchkin-btb.pages.dev/fr/" />
+    <link rel="alternate" hreflang="de" href="https://munchkin-btb.pages.dev/de/" />
+    <link rel="alternate" hreflang="it" href="https://munchkin-btb.pages.dev/it/" />
+    <link rel="alternate" hreflang="pt" href="https://munchkin-btb.pages.dev/pt/" />
+    <link rel="alternate" hreflang="x-default" href="https://munchkin-btb.pages.dev/" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Munchkin Salas" />
     <meta property="og:title" content="Munchkin Salas" />
-    <meta
-      property="og:description"
-      content="Contador de niveles y equipo para Munchkin. Cada uno lleva su personaje desde su móvil y la mesa lo ve todo."
-    />
+    <meta property="og:description" content="Contador de niveles, equipo y desventajas para Munchkin. Cada jugador lleva su personaje desde su móvil y la pantalla de la mesa muestra quién va ganando. Gratis, sin cuentas y funciona sin internet." />
     <meta property="og:url" content="https://munchkin-btb.pages.dev/" />
+    <meta property="og:locale" content="es" />
     <meta property="og:image" content="https://munchkin-btb.pages.dev/og.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -35,35 +40,54 @@
         "applicationCategory": "GameApplication",
         "operatingSystem": "Web",
         "isAccessibleForFree": true,
-        "inLanguage": ["es", "en", "fr", "de", "it", "pt"],
-        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
-        "description": "Contador de niveles, equipo y desventajas para partidas de Munchkin, con salas para que cada jugador use su propio móvil."
+        "inLanguage": "es",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "EUR"
+        },
+        "description": "Contador de niveles, equipo y desventajas para Munchkin. Cada jugador lleva su personaje desde su móvil y la pantalla de la mesa muestra quién va ganando. Gratis, sin cuentas y funciona sin internet."
       }
     </script>
   </head>
   <body>
     <!-- Lo de dentro de #root lo sustituye la app al arrancar. Esta aqui para
-         quien llegue sin JavaScript y para los buscadores, que si no encuentran
-         una pagina vacia. -->
+         quien llegue sin JavaScript y para los rastreadores que no lo ejecutan.
+         El mismo texto lo ve una persona al final de la pantalla de inicio. -->
     <div id="root">
       <main class="semilla">
         <h1>Munchkin Salas</h1>
-        <p>
-          Contador de niveles, equipo y desventajas para jugar a Munchkin. Cada jugador lleva su
-          personaje desde su propio móvil y la pantalla del centro de la mesa muestra el reparto
-          de poder de un vistazo.
-        </p>
+        <p>Contador de niveles para partidas de Munchkin y otros juegos de mesa de mazmorreo. La pantalla que dejas en el centro de la mesa reparte el espacio según el poder de cada jugador, así que de un vistazo se ve quién va ganando sin preguntar.</p>
+
+        <h2>Qué hace</h2>
         <ul>
-          <li>Gratis, sin cuentas y sin anuncios.</li>
-          <li>Se instala como aplicación y funciona sin internet.</li>
-          <li>Salas con código de cuatro letras y código QR para entrar al momento.</li>
-          <li>Nivel objetivo configurable: 10, 20 o lo que juegue tu grupo.</li>
-          <li>En español, inglés, francés, alemán, italiano y portugués.</li>
+          <li>Cuenta nivel, equipo y desventajas de cada jugador, y calcula el poder total.</li>
+          <li>El tablero reparte la pantalla en bloques proporcionales al poder: el que va primero ocupa más sitio.</li>
+          <li>Salas con código de cuatro letras y código QR: cada uno entra con su móvil y lleva su propio personaje.</li>
+          <li>Nivel objetivo configurable: 10 el estándar, 20 para las partidas largas, o lo que juegue tu grupo.</li>
+          <li>Se instala como aplicación y funciona sin internet: la partida se guarda en el aparato.</li>
+          <li>Gratis, sin cuentas, sin anuncios y sin registro.</li>
         </ul>
-        <p>
-          Necesita JavaScript para funcionar. Proyecto de aficionado, sin relación con Steve
-          Jackson Games.
-        </p>
+
+        <h2>Cómo se usa</h2>
+        <ol>
+          <li>Apunta a quién juega, elige a qué nivel se gana y empieza la partida.</li>
+          <li>Crea una sala: sale un código de cuatro letras y un QR.</li>
+          <li>Cada jugador escanea el QR con el móvil, coge su personaje y sube o baja sus contadores.</li>
+        </ol>
+
+        <h2>Preguntas</h2>
+        <h3>¿Hace falta instalar algo?</h3>
+        <p>No. Se abre en el navegador. Si quieres, se instala como aplicación desde el propio navegador y entonces funciona sin conexión y sin barra de direcciones.</p>
+        <h3>¿Se puede jugar sin internet?</h3>
+        <p>Sí. En un solo aparato funciona todo sin conexión. Internet solo hace falta para las salas, que es cuando cada jugador usa su propio móvil.</p>
+        <h3>¿Cuántos jugadores admite?</h3>
+        <p>Hasta ocho, cada uno con su color. Se pueden añadir y quitar en cualquier momento de la partida.</p>
+        <h3>¿Guarda mis datos?</h3>
+        <p>No hay cuentas ni registro. La partida se guarda en tu propio aparato, y las salas solo guardan los nombres durante la partida: se borran solas a las 24 horas.</p>
+
+        <h2>Idiomas</h2>
+        <p>Disponible en español, inglés, francés, alemán, italiano y portugués.</p>
       </main>
     </div>
     <script type="module" src="/src/main.jsx"></script>
