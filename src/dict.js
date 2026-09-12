@@ -62,8 +62,7 @@ const DICT = {
     'room.orCode': 'O entra a mano con este código:',
     'room.device': '{n} aparato',
     'room.devices': '{n} aparatos',
-    'room.privacy':
-      'Los nombres viajan a un servidor en Cloudflare y la sala se borra sola a las 24 h.',
+    'room.privacy': 'La sala se borra sola a las 24 h.',
     'room.leave': 'Salir de la sala',
     'room.done': 'Listo',
     'room.createHint': 'Crea una sala desde la pantalla de la mesa y que cada uno entre con su móvil.',
@@ -138,7 +137,7 @@ const DICT = {
     'room.orCode': 'Or join by hand with this code:',
     'room.device': '{n} device',
     'room.devices': '{n} devices',
-    'room.privacy': 'Names travel to a server on Cloudflare and the room deletes itself after 24 h.',
+    'room.privacy': 'The room deletes itself after 24 h.',
     'room.leave': 'Leave the room',
     'room.done': 'Done',
     'room.createHint': 'Create the room on the table screen and let everyone join from their phone.',
@@ -212,8 +211,7 @@ const DICT = {
     'room.orCode': 'Ou entre à la main avec ce code :',
     'room.device': '{n} appareil',
     'room.devices': '{n} appareils',
-    'room.privacy':
-      'Les noms partent vers un serveur chez Cloudflare et la salle s’efface toute seule au bout de 24 h.',
+    'room.privacy': 'La salle s’efface toute seule au bout de 24 h.',
     'room.leave': 'Quitter la salle',
     'room.done': 'C’est bon',
     'room.createHint': 'Crée la salle sur l’écran de table et que chacun entre depuis son téléphone.',
@@ -288,8 +286,7 @@ const DICT = {
     'room.orCode': 'Oder per Hand mit diesem Code:',
     'room.device': '{n} Gerät',
     'room.devices': '{n} Geräte',
-    'room.privacy':
-      'Die Namen gehen an einen Server bei Cloudflare, und der Raum löscht sich nach 24 h selbst.',
+    'room.privacy': 'Der Raum löscht sich nach 24 h selbst.',
     'room.leave': 'Raum verlassen',
     'room.done': 'Fertig',
     'room.createHint': 'Erstelle den Raum am Tisch-Bildschirm, alle anderen kommen per Handy dazu.',
@@ -364,8 +361,7 @@ const DICT = {
     'room.orCode': 'Oppure entra a mano con questo codice:',
     'room.device': '{n} apparecchio',
     'room.devices': '{n} apparecchi',
-    'room.privacy':
-      'I nomi vanno su un server di Cloudflare e la stanza si cancella da sola dopo 24 h.',
+    'room.privacy': 'La stanza si cancella da sola dopo 24 h.',
     'room.leave': 'Esci dalla stanza',
     'room.done': 'Fatto',
     'room.createHint': 'Crea la stanza dallo schermo del tavolo e che ognuno entri dal telefono.',
@@ -440,8 +436,7 @@ const DICT = {
     'room.orCode': 'Ou entre na mão com este código:',
     'room.device': '{n} aparelho',
     'room.devices': '{n} aparelhos',
-    'room.privacy':
-      'Os nomes vão para um servidor na Cloudflare e a sala se apaga sozinha em 24 h.',
+    'room.privacy': 'A sala se apaga sozinha em 24 h.',
     'room.leave': 'Sair da sala',
     'room.done': 'Pronto',
     'room.createHint': 'Crie a sala na tela da mesa e cada um entra pelo celular.',

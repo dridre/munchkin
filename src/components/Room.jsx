@@ -18,7 +18,7 @@ export function RoomChip({ room, onOpen, corner }) {
       title={STATUS(t, room.status)}
     >
       <span className="room-chip__dot" />
-      {room.code ?? t('room.title')}
+      {room.code ?? t('room.create')}
     </button>
   )
 }
