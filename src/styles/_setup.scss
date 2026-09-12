@@ -30,6 +30,17 @@
     line-height: 1;
   }
 
+  &__marca { display: block; }
+
+  &__sub {
+    display: block;
+    margin-top: .5rem;
+    font-size: .45em;
+    font-weight: 500;
+    letter-spacing: .12em;
+    color: t.$muted;
+  }
+
   &__list {
     display: grid;
     gap: .6rem;

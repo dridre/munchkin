@@ -27,7 +27,7 @@ export default defineConfig({
       workbox: { globPatterns: ['**/*.{js,css,html,svg,woff2}'] },
       includeAssets: ['icon.svg'],
       manifest: {
-        name: 'Munchkin Salas',
+        name: 'Munchkin Contador de Niveles',
         short_name: 'Munchkin',
         description:
           'Contador de niveles y equipo para Munchkin. Cada uno lleva su personaje desde su movil y la mesa lo ve todo.',

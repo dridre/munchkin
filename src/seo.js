@@ -10,8 +10,8 @@
 export const SEO = {
   es: {
     lang: 'es',
-    name: 'Munchkin Salas',
-    title: 'Munchkin Salas — contador de niveles y equipo online',
+    name: 'Munchkin Contador de Niveles',
+    title: 'Munchkin Contador de Niveles y Equipo — gratis y online',
     description:
       'Contador de niveles, equipo y desventajas para Munchkin. Cada jugador lleva su personaje desde su móvil y la pantalla de la mesa muestra quién va ganando. Gratis, sin cuentas y funciona sin internet.',
     lead: 'Contador de niveles para partidas de Munchkin y otros juegos de mesa de mazmorreo. La pantalla que dejas en el centro de la mesa reparte el espacio según el poder de cada jugador, así que de un vistazo se ve quién va ganando sin preguntar.',
@@ -56,8 +56,8 @@ export const SEO = {
 
   en: {
     lang: 'en',
-    name: 'Munchkin Rooms',
-    title: 'Munchkin Rooms — online level and gear counter',
+    name: 'Munchkin Level Counter',
+    title: 'Munchkin Level Counter — free online level and gear tracker',
     description:
       'Level, gear and penalty counter for Munchkin. Every player runs their own character from their phone while the table screen shows who is winning. Free, no accounts, works offline.',
     lead: 'A level counter for Munchkin and other dungeon-crawl board games. The screen you leave in the middle of the table splits itself by each player’s power, so you can see who is winning at a glance without asking.',
@@ -102,8 +102,8 @@ export const SEO = {
 
   fr: {
     lang: 'fr',
-    name: 'Munchkin Salles',
-    title: 'Munchkin Salles — compteur de niveaux et d’équipement en ligne',
+    name: 'Munchkin Compteur de Niveaux',
+    title: 'Munchkin Compteur de Niveaux et d’Équipement — gratuit en ligne',
     description:
       'Compteur de niveaux, d’équipement et de malus pour Munchkin. Chaque joueur gère son personnage depuis son téléphone et l’écran de table montre qui est en tête. Gratuit, sans compte, marche hors ligne.',
     lead: 'Un compteur de niveaux pour Munchkin et autres jeux de société d’exploration de donjon. L’écran posé au milieu de la table se partage selon la puissance de chaque joueur : on voit d’un coup d’œil qui est en tête, sans demander.',
@@ -148,8 +148,8 @@ export const SEO = {
 
   de: {
     lang: 'de',
-    name: 'Munchkin Räume',
-    title: 'Munchkin Räume — Level- und Ausrüstungszähler online',
+    name: 'Munchkin Levelzähler',
+    title: 'Munchkin Levelzähler — Level- und Ausrüstungszähler kostenlos online',
     description:
       'Zähler für Level, Ausrüstung und Malus bei Munchkin. Jeder führt seinen Charakter auf dem eigenen Handy, der Tisch-Bildschirm zeigt, wer vorne liegt. Kostenlos, ohne Konto, auch offline.',
     lead: 'Ein Levelzähler für Munchkin und andere Dungeon-Brettspiele. Der Bildschirm in der Tischmitte teilt sich nach der Stärke jedes Spielers auf, sodass man auf einen Blick sieht, wer vorne liegt, ohne zu fragen.',
@@ -194,8 +194,8 @@ export const SEO = {
 
   it: {
     lang: 'it',
-    name: 'Munchkin Stanze',
-    title: 'Munchkin Stanze — contatore di livelli ed equipaggiamento online',
+    name: 'Munchkin Contatore di Livelli',
+    title: 'Munchkin Contatore di Livelli ed Equipaggiamento — gratis online',
     description:
       'Contatore di livelli, equipaggiamento e malus per Munchkin. Ognuno gestisce il suo personaggio dal telefono e lo schermo al centro mostra chi è in testa. Gratis, senza account, funziona offline.',
     lead: 'Un contatore di livelli per Munchkin e altri giochi da tavolo di esplorazione di dungeon. Lo schermo che lasci al centro del tavolo si divide in base alla forza di ogni giocatore: si vede a occhio chi è in testa, senza chiedere.',
@@ -240,8 +240,8 @@ export const SEO = {
 
   pt: {
     lang: 'pt',
-    name: 'Munchkin Salas',
-    title: 'Munchkin Salas — contador de níveis e equipamento online',
+    name: 'Munchkin Contador de Níveis',
+    title: 'Munchkin Contador de Níveis e Equipamento — grátis e online',
     description:
       'Contador de níveis, equipamento e penalidades para Munchkin. Cada um cuida do seu personagem pelo celular e a tela da mesa mostra quem está na frente. Grátis, sem conta, funciona sem internet.',
     lead: 'Um contador de níveis para Munchkin e outros jogos de tabuleiro de masmorra. A tela que fica no meio da mesa se divide conforme a força de cada jogador, então dá para ver num relance quem está na frente sem precisar perguntar.',

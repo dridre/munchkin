@@ -1,4 +1,4 @@
-# Munchkin Salas
+# Munchkin Contador de Niveles
 
 Contador de niveles, equipo y desventajas para partidas de Munchkin. La pantalla
 del centro de la mesa reparte el espacio según el poder de cada uno, y cada

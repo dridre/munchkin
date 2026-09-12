@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { LANGS, detect, translate } from './dict.js'
+import { SEO } from './seo.js'
 
 export * from './dict.js'
 
@@ -35,16 +36,16 @@ export function Idiomas({ children }) {
   }, [])
 
   // Que el idioma se vea tambien fuera de React: la pestaña, la descripcion y
-  // el atributo que usan los buscadores y los lectores de pantalla.
+  // el atributo que usan los buscadores y los lectores de pantalla. Los mismos
+  // textos que la pagina estatica: Google indexa lo que queda tras montar.
   useEffect(() => {
-    const name = translate(lang, 'app.name')
-    const tagline = translate(lang, 'app.tagline')
+    const s = SEO[lang] ?? SEO.es
     document.documentElement.lang = lang
-    document.title = `${name} — ${translate(lang, 'stat.level')} & ${translate(lang, 'stat.gear')}`
+    document.title = s.title
     for (const sel of ['meta[name="description"]', 'meta[property="og:description"]']) {
-      document.querySelector(sel)?.setAttribute('content', tagline)
+      document.querySelector(sel)?.setAttribute('content', s.description)
     }
-    document.querySelector('meta[property="og:title"]')?.setAttribute('content', name)
+    document.querySelector('meta[property="og:title"]')?.setAttribute('content', s.name)
   }, [lang])
 
   const value = useMemo(

@@ -77,11 +77,17 @@ export default function Setup({ players, goal, dispatch, room, onRoom }) {
   const bajarObjetivo = useHold(mover(-1))
   const subirObjetivo = useHold(mover(1))
 
+  // El nombre entero es lo que se busca, pero en una linea no cabe en un movil.
+  const [marca, ...resto] = t('app.name').split(' ')
+
   return (
     <div className="setup">
       <div className="setup__inner">
         <div className="setup__head">
-          <h1 className="setup__title">{t('app.name')}</h1>
+          <h1 className="setup__title">
+            <span className="setup__marca">{marca}</span>{' '}
+            <span className="setup__sub">{resto.join(' ')}</span>
+          </h1>
         </div>
 
         {/* Sala e idioma comparten fila, uno en cada punta: asi el titulo se

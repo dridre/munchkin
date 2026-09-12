@@ -13,9 +13,7 @@ export const LANGS = [
 
 const DICT = {
   es: {
-    'app.name': 'Munchkin Salas',
-    'app.tagline':
-      'Contador de niveles y equipo para Munchkin. Cada uno lleva su personaje desde su móvil y la mesa lo ve todo.',
+    'app.name': 'Munchkin Contador de Niveles',
     'setup.empty': 'Todavía no hay nadie en la partida.',
     'setup.add': 'Añadir jugador',
     'setup.start': 'Empezar',
@@ -88,9 +86,7 @@ const DICT = {
   },
 
   en: {
-    'app.name': 'Munchkin Rooms',
-    'app.tagline':
-      'Level and gear counter for Munchkin. Everyone runs their own character from their phone while the table screen shows the lot.',
+    'app.name': 'Munchkin Level Counter',
     'setup.empty': 'Nobody in the game yet.',
     'setup.add': 'Add player',
     'setup.start': 'Start',
@@ -162,9 +158,7 @@ const DICT = {
   },
 
   fr: {
-    'app.name': 'Munchkin Salles',
-    'app.tagline':
-      'Compteur de niveaux et d’équipement pour Munchkin. Chacun gère son personnage depuis son téléphone et l’écran de table montre tout.',
+    'app.name': 'Munchkin Compteur de Niveaux',
     'setup.empty': 'Personne dans la partie pour le moment.',
     'setup.add': 'Ajouter un joueur',
     'setup.start': 'Commencer',
@@ -237,9 +231,7 @@ const DICT = {
   },
 
   de: {
-    'app.name': 'Munchkin Räume',
-    'app.tagline':
-      'Level- und Ausrüstungszähler für Munchkin. Jeder führt seinen Charakter auf dem eigenen Handy, der Tisch-Bildschirm zeigt alles.',
+    'app.name': 'Munchkin Levelzähler',
     'setup.empty': 'Noch niemand im Spiel.',
     'setup.add': 'Spieler hinzufügen',
     'setup.start': 'Los geht’s',
@@ -312,9 +304,7 @@ const DICT = {
   },
 
   it: {
-    'app.name': 'Munchkin Stanze',
-    'app.tagline':
-      'Contatore di livelli ed equipaggiamento per Munchkin. Ognuno gestisce il suo personaggio dal telefono e lo schermo al centro mostra tutto.',
+    'app.name': 'Munchkin Contatore di Livelli',
     'setup.empty': 'Ancora nessuno in partita.',
     'setup.add': 'Aggiungi giocatore',
     'setup.start': 'Iniziamo',
@@ -387,9 +377,7 @@ const DICT = {
   },
 
   pt: {
-    'app.name': 'Munchkin Salas',
-    'app.tagline':
-      'Contador de níveis e equipamento para Munchkin. Cada um cuida do seu personagem pelo celular e a tela da mesa mostra tudo.',
+    'app.name': 'Munchkin Contador de Níveis',
     'setup.empty': 'Ainda não tem ninguém na partida.',
     'setup.add': 'Adicionar jogador',
     'setup.start': 'Começar',

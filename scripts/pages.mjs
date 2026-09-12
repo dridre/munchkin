@@ -38,6 +38,16 @@ function pagina(code) {
     description: s.description,
   }
 
+  // El nombre que sale encima de la direccion en Google. Sin esto lo adivina, y
+  // en un subdominio de pages.dev adivina "Cloudflare". Solo va en la portada.
+  const sitio = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SEO.es.name,
+    alternateName: [...new Set(Object.values(SEO).map((x) => x.name))].filter((n) => n !== SEO.es.name),
+    url: `${SITE}/`,
+  }
+
   return `<!doctype html>
 <html lang="${code}">
   <head>
@@ -67,7 +77,7 @@ ${alternates}
     <meta name="twitter:card" content="summary_large_image" />
 
     <script type="application/ld+json">
-${JSON.stringify(datos, null, 2)
+${JSON.stringify(PATHS[code] === '/' ? [sitio, datos] : datos, null, 2)
   .split('\n')
   .map((l) => '      ' + l)
   .join('\n')}
