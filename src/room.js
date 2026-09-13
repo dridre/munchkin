@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { REAL_TIMERS } from './hold.js'
 
 // Sin servidor configurado la app funciona igual de bien, solo que en local.
 export const ROOM_URL = (import.meta.env?.VITE_ROOM_URL ?? '').replace(/\/+$/, '')
@@ -39,11 +40,109 @@ const MAX_WAIT = 10000
 export const nextWait = (wait, dado = Math.random()) =>
   Math.min(MAX_WAIT, Math.round(wait * 1.8 * (0.8 + dado * 0.4)))
 
-// Conexion a la sala. Se reconecta sola espaciando los intentos: en una mesa el
-// wifi se cae, alguien bloquea el movil y hay que volver sin que nadie toque nada.
+// Latido: un ping cada tanto, y si dos seguidos se quedan sin respuesta la
+// conexion esta muerta aunque el navegador la de por abierta. Pasa cuando la
+// tablet se adormece o el wifi corta sin avisar: el aviso de cierre no llega
+// nunca y, sin esto, la mesa se quedaba desconectada hasta recargar.
+const PING_EVERY = 15000
+const SILENT_BEATS = 3
+// Al volver a la pantalla o a la red no se espera al latido: se pregunta ya.
+const ANSWER_WITHIN = 4000
+
+// Conexion a la sala, sin React para poder probarla con un reloj y un socket
+// falsos. Se reconecta sola espaciando los intentos: en una mesa el wifi se
+// cae, alguien bloquea el movil y hay que volver sin que nadie toque nada.
+export function connect(url, { onMessage, onStatus }, WS = WebSocket, timers = REAL_TIMERS) {
+  let ws = null
+  let retry = null
+  let check = null
+  let wait = FIRST_WAIT
+  let silent = 0
+
+  const drop = () => {
+    if (!ws) return
+    ws.onopen = ws.onmessage = ws.onerror = ws.onclose = null
+    ws.close()
+    ws = null
+  }
+
+  const open = () => {
+    onStatus('connecting')
+    silent = 0
+    const sock = new WS(url)
+    ws = sock
+
+    sock.onopen = () => {
+      silent = 0
+      wait = FIRST_WAIT
+      onStatus('online')
+    }
+
+    sock.onmessage = (event) => {
+      silent = 0
+      if (event.data === 'pong') return
+      try {
+        onMessage(JSON.parse(event.data))
+      } catch {
+        /* mensaje que no entendemos: mejor ignorarlo que romper la partida */
+      }
+    }
+
+    sock.onerror = () => sock.close()
+
+    sock.onclose = () => {
+      ws = null
+      onStatus('offline')
+      retry = timers.set(open, wait)
+      wait = nextWait(wait)
+    }
+  }
+
+  // Tira la conexion actual sin esperar a que el navegador se entere, y otra.
+  const restart = () => {
+    timers.clear(retry)
+    timers.clear(check)
+    drop()
+    wait = FIRST_WAIT
+    open()
+  }
+
+  const beat = () => {
+    tick = timers.set(beat, PING_EVERY)
+    if (!ws) return // esperando al siguiente reintento
+    if (++silent >= SILENT_BEATS) return restart()
+    if (ws.readyState === WS.OPEN) ws.send('ping')
+  }
+  let tick = timers.set(beat, PING_EVERY)
+
+  const probe = () => {
+    if (!ws) return restart()
+    if (ws.readyState !== WS.OPEN) return
+    silent = Math.max(silent, 1)
+    ws.send('ping')
+    timers.clear(check)
+    check = timers.set(() => silent && restart(), ANSWER_WITHIN)
+  }
+
+  open()
+
+  return {
+    probe,
+    // Si no hay linea, se descarta: la partida sigue en local y al reconectar
+    // el servidor manda el estado bueno.
+    send: (message) => ws?.readyState === WS.OPEN && ws.send(JSON.stringify(message)),
+    close: () => {
+      timers.clear(retry)
+      timers.clear(check)
+      timers.clear(tick)
+      drop()
+    },
+  }
+}
+
 export function useRoom(code, onMessage) {
   const [status, setStatus] = useState('idle')
-  const socket = useRef(null)
+  const conn = useRef(null)
   const latest = useRef(onMessage)
   latest.current = onMessage
 
@@ -53,68 +152,27 @@ export function useRoom(code, onMessage) {
       return undefined
     }
 
-    let alive = true
-    let retry = null
-    let wait = FIRST_WAIT
+    const c = connect(`${ROOM_URL.replace(/^http/, 'ws')}/room/${code}/ws`, {
+      onMessage: (m) => latest.current(m),
+      onStatus: setStatus,
+    })
+    conn.current = c
 
-    const open = () => {
-      setStatus('connecting')
-      const ws = new WebSocket(`${ROOM_URL.replace(/^http/, 'ws')}/room/${code}/ws`)
-      socket.current = ws
-
-      ws.onopen = () => {
-        if (!alive) return ws.close()
-        wait = FIRST_WAIT
-        setStatus('online')
-      }
-
-      ws.onmessage = (event) => {
-        try {
-          latest.current(JSON.parse(event.data))
-        } catch {
-          /* mensaje que no entendemos: mejor ignorarlo que romper la partida */
-        }
-      }
-
-      ws.onerror = () => ws.close()
-
-      ws.onclose = () => {
-        socket.current = null
-        if (!alive) return
-        setStatus('offline')
-        retry = setTimeout(open, wait)
-        wait = nextWait(wait)
-      }
-    }
-
-    open()
-
-    // iOS congela los temporizadores con la pantalla bloqueada: al volver puede
-    // quedarse hasta diez segundos sin linea mientras su dueño toca botones.
-    const onVisible = () => {
-      if (document.visibilityState === 'visible' && !socket.current) {
-        clearTimeout(retry)
-        wait = FIRST_WAIT
-        open()
-      }
-    }
+    // iOS congela los temporizadores con la pantalla bloqueada, y una tablet
+    // dormida vuelve con una conexion que parece abierta y no lo esta.
+    const onVisible = () => document.visibilityState === 'visible' && c.probe()
     document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('online', c.probe)
 
     return () => {
       document.removeEventListener('visibilitychange', onVisible)
-      alive = false
-      clearTimeout(retry)
-      socket.current?.close()
-      socket.current = null
+      window.removeEventListener('online', c.probe)
+      c.close()
+      conn.current = null
     }
   }, [code])
 
-  // Si no hay linea, se descarta: la partida sigue en local y al reconectar el
-  // servidor manda el estado bueno.
-  const send = useCallback((message) => {
-    const ws = socket.current
-    if (ws?.readyState === WebSocket.OPEN) ws.send(JSON.stringify(message))
-  }, [])
+  const send = useCallback((message) => conn.current?.send(message), [])
 
   return { status, send }
 }

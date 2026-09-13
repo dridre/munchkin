@@ -126,6 +126,9 @@ export class Limiter {
 export class Room {
   constructor(ctx) {
     this.ctx = ctx
+    // El latido de los aparatos se contesta sin despertar la sala: les basta
+    // para saber que la conexion sigue viva y no cuesta tiempo de ejecucion.
+    ctx.setWebSocketAutoResponse(new WebSocketRequestResponsePair('ping', 'pong'))
   }
 
   async fetch(request) {

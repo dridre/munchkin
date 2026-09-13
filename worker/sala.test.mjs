@@ -188,5 +188,16 @@ manda(vuelve, { type: 'bump', id: 'a', field: 'level', delta: 15 })
 const pasa10 = await esperar(movil, (m) => m.state?.players?.[0]?.level > 10, 'con objetivo 20 se pasa de 10')
 assert.equal(pasa10.state.players[0].level, 16, 'y llega exactamente a 16')
 
-for (const ws of [movil, fantasma, vuelve]) ws.close()
+// --- el latido: el servidor contesta aunque la sala este dormida ------------
+const latido = new WebSocket(`${URL_BASE.replace(/^http/, 'ws')}/room/${code}/ws`)
+let sinPong
+const pong = await new Promise((listo, falla) => {
+  latido.onopen = () => latido.send('ping')
+  latido.onmessage = (e) => e.data === 'pong' && listo(e.data)
+  sinPong = setTimeout(() => falla(new Error('el servidor no contesta al latido')), 4000)
+})
+clearTimeout(sinPong)
+assert.equal(pong, 'pong', 'ping recibe pong')
+
+for (const ws of [movil, fantasma, vuelve, latido]) ws.close()
 console.log('sala en vivo ok')
